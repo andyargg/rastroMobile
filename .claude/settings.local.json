@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\USER\\\\andy trabajo\\\\trabajos\\\\spanish5000\\\\lib\")",
+      "WebSearch",
+      "mcp__ide__getDiagnostics"
+    ]
+  }
+}

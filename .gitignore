@@ -1,0 +1,62 @@
+# Flutter/Dart related
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+flutter_export_environment.sh
+
+# Android build artifacts (NOT the entire android/ folder)
+android/app/.cxx/
+android/.gradle/
+android/app/build/
+android/local.properties
+*.jks
+*.keystore
+
+# iOS
+ios/Pods/
+ios/.generated/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/build/
+ios/Flutter/ephemeral/
+
+# macOS
+macos/Flutter/ephemeral/
+macos/build/
+DerivedData/
+
+# Web
+web/.dart_tool/
+
+# Linux
+linux/flutter/ephemeral/
+linux/build/
+
+# Windows
+windows/flutter/ephemeral/
+windows/build/
+*.pdb
+
+# Binaries
+*.dll
+*.dylib
+*.exe
+*.so
+
+# Environment / Secrets
+.env
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# FVM - Only ignore the SDK symlink, keep config files
+.fvm/flutter_sdk
