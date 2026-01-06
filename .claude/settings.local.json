@@ -4,7 +4,13 @@
       "Bash(cat:*)",
       "Bash(dir /s /b \"C:\\\\Users\\\\USER\\\\andy trabajo\\\\trabajos\\\\spanish5000\\\\lib\")",
       "WebSearch",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(dir /s /b \"C:\\\\Users\\\\andre\\\\trabajos\\\\rastro\\\\frontend\")",
+      "Bash(flutter pub get:*)",
+      "Bash(test:*)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/gen.sh:*)",
+      "Bash(flutter pub run build_runner build:*)"
     ]
   }
 }

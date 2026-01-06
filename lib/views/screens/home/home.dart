@@ -27,9 +27,9 @@ class _HomePage extends State<HomePage> {
 
     @override
     Widget build(BuildContext context) {
-        return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.5),
-            child: ShippingCardBuilder(shippings: widget.shippings),
+        return Scaffold(
+          backgroundColor: Color(0xFFE3E2E2), 
+          body: ShippingCardBuilder(shippings: widget.shippings)
         );
     }
 }
