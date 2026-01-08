@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class SearchBarCard extends StatefulWidget {
 final ValueChanged<String> onSearchChanged;
@@ -37,15 +38,18 @@ class _SearchBarCardState extends State<SearchBarCard> {
       decoration: InputDecoration(
         hintText: 'Buscar',
         hintStyle: TextStyle(
-          color: Color(0xFFFFFFFF)
+          color: Color(0xFFFFFFFF),
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
         prefixIcon: const Icon(
-          Icons.search,
+          LucideIcons.search,
           color: Color(0xFFFFFFFF),
+          size: 25,
         ),
         suffixIcon: _controller.text.isNotEmpty
           ? IconButton(
-            icon: const Icon(Icons.clear),
+            icon: const Icon(LucideIcons.x),
             color: Color(0xFFFFFFFF),
             onPressed: () {
               _controller.clear();
@@ -53,14 +57,14 @@ class _SearchBarCardState extends State<SearchBarCard> {
             },
           )
           : const Icon(
-            Icons.inventory_2,
+            LucideIcons.package,
             color: Color(0xFFFFFFFF),
           ),
         filled: true,
         fillColor: Color(0xFFC98643),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(vertical: 18),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
       )

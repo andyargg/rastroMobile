@@ -81,6 +81,13 @@ class ShippingCard extends StatelessWidget {
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(8.0),
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: shipping.status.getShadowColor(),
+                          offset: Offset(0, 4),
+                          blurRadius: 4,
+                        ),
+                      ],
                     ),
                     child: Text(
                       shipping.status.getLabel(),

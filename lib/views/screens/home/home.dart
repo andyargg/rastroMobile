@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rastro/models/shipping.dart';
+import 'package:rastro/views/screens/home/widgets/footer_menu.dart';
 import 'package:rastro/views/screens/home/widgets/search_bar_card.dart';
 import 'package:rastro/views/screens/home/widgets/shipping_card_builder.dart';
 
@@ -34,23 +35,28 @@ class _HomePage extends State<HomePage> {
         return Scaffold(
           backgroundColor: Color(0xFFE3E2E2),
           body: SafeArea(
-            child: Column(
+            child: Stack(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12.5, 56, 12.5, 5),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFC98643),
-                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12.5, 56, 12.5, 5),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFFC98643),
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                        ),
+                        child: SearchBarCard(
+                          onSearchChanged: _filterShippings,
+                        ),
+                      ),
                     ),
-                    child: SearchBarCard(
-                      onSearchChanged: _filterShippings,
+                    Expanded(
+                      child: ShippingCardBuilder(shippings: _filteredShippings)
                     ),
-                  ),
+                  ],
                 ),
-                Expanded(
-                  child: ShippingCardBuilder(shippings: _filteredShippings)
-                ),
+                FooterMenu(),
               ],
             ),
           )

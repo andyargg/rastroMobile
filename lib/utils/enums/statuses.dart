@@ -46,4 +46,17 @@ extension ShippingStatusExtension on ShippingStatus {
         return const Color.fromARGB(255, 62, 62, 62);
     }
   }
+
+  Color getShadowColor() {
+    switch (this) {
+      case ShippingStatus.delivered:
+        return const Color(0xFFB3E8BF);
+      case ShippingStatus.inTransit:
+        return const Color.fromRGBO(239, 255, 114, 0.22);
+      case ShippingStatus.error:
+        return const Color.fromRGBO(248, 82, 91, 0.32);
+      case ShippingStatus.pending:
+        return const Color.fromRGBO(128, 128, 128, 0.25);
+    }
+  }
 }
