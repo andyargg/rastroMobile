@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:rastro/data/mock_data.dart';
-import 'package:rastro/views/screens/home/home.dart';
+import 'package:rastro/routes/app_router.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Rastro',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: HomePage(shippings: mockShippings),
+      routerConfig: _appRouter.config(),
     );
   }
 }

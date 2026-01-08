@@ -1,29 +1,30 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:rastro/data/mock_data.dart';
 import 'package:rastro/models/shipping.dart';
+import 'package:rastro/routes/app_router.dart';
 import 'package:rastro/views/screens/home/widgets/footer_menu.dart';
 import 'package:rastro/views/screens/home/widgets/search_bar_card.dart';
 import 'package:rastro/views/screens/home/widgets/shipping_card_builder.dart';
 
+@RoutePage()
 class HomePage extends StatefulWidget {
 
-    final List<Shipping> shippings;
+    const HomePage({super.key});
 
-    const HomePage({
-        super.key,
-        required this.shippings,
-    });
     @override
     State<HomePage> createState() => _HomePage();
-    
+
 }
 
 class _HomePage extends State<HomePage> {
     late List<Shipping> _filteredShippings;
+    final List<Shipping> _shippings = mockShippings;
 
     @override
     initState() {
         super.initState();
-        _filteredShippings = widget.shippings;
+        _filteredShippings = _shippings;
     }    
     @override
     dispose() {
@@ -32,6 +33,7 @@ class _HomePage extends State<HomePage> {
 
     @override
     Widget build(BuildContext context) {
+        final router = AutoRouter.of(context);
         return Scaffold(
           backgroundColor: Color(0xFFE3E2E2),
           body: SafeArea(
@@ -56,7 +58,11 @@ class _HomePage extends State<HomePage> {
                     ),
                   ],
                 ),
-                FooterMenu(),
+                FooterMenu(
+                  onTapProfile: () => router.push(
+                    const ProfileRoute()
+                  ),
+                ),
               ],
             ),
           )
@@ -66,11 +72,11 @@ class _HomePage extends State<HomePage> {
     void _filterShippings(String query){
       setState(() {
         if (query.isEmpty) {
-          _filteredShippings = widget.shippings;
+          _filteredShippings = _shippings;
         } else {
           final lowerQuery = query.toLowerCase();
 
-          _filteredShippings = widget.shippings.where((shipping) {
+          _filteredShippings = _shippings.where((shipping) {
             final productMatch = shipping.productName.toLowerCase().contains(lowerQuery);
             final courierMatch = shipping.courier.toLowerCase().contains(lowerQuery);
 
