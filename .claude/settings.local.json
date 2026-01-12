@@ -10,7 +10,9 @@
       "Bash(test:*)",
       "Bash(chmod:*)",
       "Bash(./scripts/gen.sh:*)",
-      "Bash(flutter pub run build_runner build:*)"
+      "Bash(flutter pub run build_runner build:*)",
+      "Bash(dir:*)",
+      "WebFetch(domain:supabase.com)"
     ]
   }
 }

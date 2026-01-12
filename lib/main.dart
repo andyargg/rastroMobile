@@ -1,7 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rastro/routes/app_router.dart';
+import 'package:rastro/services/auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+final getIt = GetIt.instance;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // load env variables
+  await dotenv.load(fileName: ".env");
+
+  // initialize supabase
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+  );
+
+  // register auth service with get_it
+  final authService = AuthService();
+  await authService.initialize();
+  getIt.registerSingleton<AuthService>(authService);
+
   runApp(MyApp());
 }
 
