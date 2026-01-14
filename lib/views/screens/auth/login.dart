@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
-import 'package:rastro/routes/app_router.dart';
 import 'package:rastro/services/auth_service.dart';
 
 @RoutePage()
@@ -176,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleEmailSignIn,
+                  onPressed:() {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2EAA5F),
                     foregroundColor: Colors.white,
@@ -233,7 +232,11 @@ class _LoginPageState extends State<LoginPage> {
               // Botón Google
               Center(
                 child: GoogleButton(
-                  onPressed: _isLoading ? null : _handleGoogleSignIn,
+                  onPressed: () {
+                    if (!_isLoading) {
+                      _authService.nativeGoogleSignIn();
+                    }
+                  },
                 ),
               ),
 
@@ -253,7 +256,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: _isLoading ? null : _handleSignUp,
+                      onTap: () {},
                       child: const Text(
                         'REGÍSTRATE',
                         style: TextStyle(
@@ -273,48 +276,8 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+  
 
-  void _handleEmailSignIn() {
-    // TODO: Implementar lógica de sign in con email
-  }
-
-  Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final user = await _authService.signInWithGoogle();
-
-      if (!mounted) return;
-
-      if (user != null) {
-        debugPrint('Google Sign In exitoso: ${user.email}');
-        context.router.replace(const HomeRoute());
-      } else {
-        _showError('Error al iniciar sesión con Google');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showError('Error: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  void _handleSignUp() {
-    // TODO: Navegar a pantalla de registro
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
 }
 
 class GoogleButton extends StatelessWidget {

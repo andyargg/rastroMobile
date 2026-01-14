@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:rastro/services/auth_service.dart';
 
 @RoutePage()
 class ProfilePage extends StatefulWidget {
@@ -14,6 +16,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final router = AutoRouter.of(context);
+    final _authService = GetIt.instance<AuthService>();
     
     return Scaffold(
       backgroundColor: Color(0xFFE3E2E2),
@@ -157,7 +160,9 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              _authService.signOut();
+            },
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(

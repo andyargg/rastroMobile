@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
+
   // sign in with email and password
   Future<AuthResponse> signInWithEmailPassword(String email, String password) async {
     return await _supabase.auth.signInWithPassword(
@@ -24,41 +25,39 @@ class AuthService {
   // native google sign in using supabase signinwithidtoken
   Future<AuthResponse> nativeGoogleSignIn() async {
     final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
-    final iosClientId = dotenv.env['GOOGLE_IOS_CLIENT_ID'];
+    final androidClientId = dotenv.env['GOOGLE_ANDROID_CLIENT_ID'];
+
+    final scopes = ['email', 'profile'];
+    final googleSignIn = GoogleSignIn.instance;
 
     if (webClientId == null) {
       throw Exception('GOOGLE_WEB_CLIENT_ID not found in environment variables');
     }
 
-    // initialize google sign in with credentials
-    final googleSignIn = GoogleSignIn(
-      clientId: iosClientId,
+    await googleSignIn.initialize(
+      clientId: androidClientId,
       serverClientId: webClientId,
     );
 
-    // trigger google sign in flow
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw Exception('Google sign in was cancelled');
-    }
+    final googleUser = await googleSignIn.authenticate();
+    
 
-    // get authentication tokens from google
-    final googleAuth = await googleUser.authentication;
-    final accessToken = googleAuth.accessToken;
-    final idToken = googleAuth.idToken;
+    final authorization =
+      await googleUser.authorizationClient.authorizationForScopes(scopes) ??
+      await googleUser.authorizationClient.authorizeScopes(scopes);
 
-    if (accessToken == null) {
-      throw Exception('No access token found');
-    }
+    final idToken = googleUser.authentication.idToken;
+
     if (idToken == null) {
-      throw Exception('No id token found');
+      throw AuthException('No ID Token found.');
     }
+
 
     // sign in to supabase with google tokens
     final response = await _supabase.auth.signInWithIdToken(
       provider: OAuthProvider.google,
       idToken: idToken,
-      accessToken: accessToken,
+      accessToken: authorization.accessToken,
     );
 
     return response;

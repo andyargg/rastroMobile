@@ -21,7 +21,6 @@ void main() async {
 
   // register auth service with get_it
   final authService = AuthService();
-  await authService.initialize();
   getIt.registerSingleton<AuthService>(authService);
 
   runApp(MyApp());
