@@ -59,10 +59,12 @@ windows/build/
 *.iws
 
 # FVM - Only ignore the SDK symlink, keep config files
-.fvm/flutter_sdk
 
 *.md
 
 #context
 docs/
 .claude
+
+# FVM Version Cache
+.fvm/

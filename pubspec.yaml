@@ -37,6 +37,7 @@ flutter:
   assets:
     - assets/couriers/
     - assets/profilePhoto/
+    - assets/logo/
     - .env
 
  

@@ -13,9 +13,12 @@ class AuthGuard extends AutoRouteGuard {
     if (user != null) {
       resolver.next(true);
     } else {
-      // Redirigir al login si no hay usuario autenticado
-      router.push(const LoginRoute());
-      resolver.next(false);
+      router.push(LoginRoute(onResult: (result) {
+        if (result) {
+          router.removeLast();
+          resolver.next(true);
+        }
+      }));
     }
   }
 }

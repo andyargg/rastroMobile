@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:rastro/services/auth_service.dart';
+import 'package:rastro/utils/styles/app_colors.dart';
+import 'package:rastro/views/screens/profile/widgets/profile_menu_item.dart';
 
 @RoutePage()
 class ProfilePage extends StatefulWidget {
@@ -16,19 +18,19 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final router = AutoRouter.of(context);
-    final _authService = GetIt.instance<AuthService>();
-    
+    final authService = GetIt.instance<AuthService>();
+
     return Scaffold(
-      backgroundColor: Color(0xFFE3E2E2),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Color(0xFFE3E2E2),
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(LucideIcons.chevronLeft),
+          icon: const Icon(LucideIcons.chevronLeft),
           onPressed: router.pop,
         ),
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Perfil",
           style: TextStyle(
             fontSize: 24,
@@ -38,19 +40,17 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       body: ListView(
-        padding: EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.only(top: 20),
         children: [
-          Center(
+          const Center(
             child: CircleAvatar(
               radius: 62.5,
-              backgroundColor: Color(0xFFC98643),
+              backgroundColor: AppColors.primary,
               backgroundImage: AssetImage('assets/profilePhoto/lucioPro.jpg'),
             ),
           ),
-          
-          SizedBox(height: 20),
-          
-          Text(
+          const SizedBox(height: 20),
+          const Text(
             "Lucio Ricolini Arriola",
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -59,121 +59,60 @@ class _ProfilePageState extends State<ProfilePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
+          const Text(
             'lucionicoliniarriolapro@gmail.com',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
               fontFamily: 'Roboto',
-              color: Color(0xFF7B7676),
+              color: AppColors.tertiary,
             ),
           ),
-          
-          SizedBox(height: 20),
-          
+          const SizedBox(height: 20),
           FractionallySizedBox(
             widthFactor: 0.4,
             child: TextButton(
               style: TextButton.styleFrom(
-                backgroundColor: Color(0xFFC98643),
-                minimumSize: Size.fromHeight(40),
+                backgroundColor: AppColors.primary,
+                minimumSize: const Size.fromHeight(40),
               ),
               onPressed: () {},
-              child: Text(
+              child: const Text(
                 'Editar perfil',
-                style: TextStyle(color: Color(0xFF402E1B)),
+                style: TextStyle(color: AppColors.textDark),
               ),
             ),
           ),
-          
-          SizedBox(height: 30),
-          
-          Divider(
-            color: Color(0xFFC98643),
-            thickness: 2,
-            indent: 10,
-            endIndent: 10,
-          ),
-          
-          InkWell(
+          const SizedBox(height: 30),
+          const ProfileDivider(),
+          ProfileMenuItem(
+            icon: LucideIcons.settings,
+            label: 'Configuración',
             onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(LucideIcons.settings, color: Color(0xFFC98643)),
-                  Expanded(child: Text('Configuración')),
-                  Icon(LucideIcons.chevronRight),
-                ],
-              ),
-            ),
           ),
-          InkWell(
+          ProfileMenuItem(
+            icon: LucideIcons.clock,
+            label: 'Historial de pedidos',
             onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                spacing: 12,
-                children: [
-                  Icon(LucideIcons.clock, color: Color(0xFFC98643)),
-                  Expanded(child: Text('Historial de pedidos')),
-                  Icon(LucideIcons.chevronRight),
-                ],
-              ),
-            ),
           ),
-          InkWell(
+          ProfileMenuItem(
+            icon: LucideIcons.lock,
+            label: 'Cambiar contraseña',
             onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(LucideIcons.lock, color: Color(0xFFC98643)),
-                  Expanded(child: Text('Cambiar contraseña')),
-                  Icon(LucideIcons.chevronRight),
-                ],
-              ),
-            ),
           ),
-          
-          Divider(
-            color: Color(0xFFC98643),
-            thickness: 2,
-            indent: 10,
-            endIndent: 10,
-          ),
-          
-          InkWell(
+          const ProfileDivider(),
+          ProfileMenuItem(
+            icon: LucideIcons.messageCircle,
+            label: 'Contactar a soporte',
             onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(LucideIcons.messageCircle, color: Color(0xFFC98643)),
-                  Expanded(child: Text('Contactar a soporte')),
-                  Icon(LucideIcons.chevronRight),
-                ],
-              ),
-            ),
           ),
-          InkWell(
-            onTap: () {
-              _authService.signOut();
+          ProfileMenuItem(
+            icon: LucideIcons.logOut,
+            label: 'Salir',
+            onTap: () async {
+              await authService.signOut();
+              router.reevaluateGuards();
             },
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(LucideIcons.logOut, color: Color(0xFFC98643)),
-                  Expanded(child: Text('Salir')),
-                  Icon(LucideIcons.chevronRight),
-                ],
-              ),
-            ),
           ),
         ],
       ),

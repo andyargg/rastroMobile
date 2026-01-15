@@ -28,18 +28,51 @@ class HomeRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [LoginPage]
-class LoginRoute extends PageRouteInfo<void> {
-  const LoginRoute({List<PageRouteInfo>? children})
-    : super(LoginRoute.name, initialChildren: children);
+class LoginRoute extends PageRouteInfo<LoginRouteArgs> {
+  LoginRoute({
+    Key? key,
+    dynamic Function(bool)? onResult,
+    List<PageRouteInfo>? children,
+  }) : super(
+         LoginRoute.name,
+         args: LoginRouteArgs(key: key, onResult: onResult),
+         initialChildren: children,
+       );
 
   static const String name = 'LoginRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const LoginPage();
+      final args = data.argsAs<LoginRouteArgs>(
+        orElse: () => const LoginRouteArgs(),
+      );
+      return LoginPage(key: args.key, onResult: args.onResult);
     },
   );
+}
+
+class LoginRouteArgs {
+  const LoginRouteArgs({this.key, this.onResult});
+
+  final Key? key;
+
+  final dynamic Function(bool)? onResult;
+
+  @override
+  String toString() {
+    return 'LoginRouteArgs{key: $key, onResult: $onResult}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! LoginRouteArgs) return false;
+    return key == other.key;
+  }
+
+  @override
+  int get hashCode => key.hashCode;
 }
 
 /// generated route for
@@ -56,4 +89,53 @@ class ProfileRoute extends PageRouteInfo<void> {
       return const ProfilePage();
     },
   );
+}
+
+/// generated route for
+/// [RegisterPage]
+class RegisterRoute extends PageRouteInfo<RegisterRouteArgs> {
+  RegisterRoute({
+    Key? key,
+    dynamic Function(bool)? onResult,
+    List<PageRouteInfo>? children,
+  }) : super(
+         RegisterRoute.name,
+         args: RegisterRouteArgs(key: key, onResult: onResult),
+         initialChildren: children,
+       );
+
+  static const String name = 'RegisterRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<RegisterRouteArgs>(
+        orElse: () => const RegisterRouteArgs(),
+      );
+      return RegisterPage(key: args.key, onResult: args.onResult);
+    },
+  );
+}
+
+class RegisterRouteArgs {
+  const RegisterRouteArgs({this.key, this.onResult});
+
+  final Key? key;
+
+  final dynamic Function(bool)? onResult;
+
+  @override
+  String toString() {
+    return 'RegisterRouteArgs{key: $key, onResult: $onResult}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! RegisterRouteArgs) return false;
+    return key == other.key;
+  }
+
+  @override
+  int get hashCode => key.hashCode;
 }

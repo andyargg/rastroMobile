@@ -14,15 +14,13 @@ class ShippingCardBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.5, vertical: 20),
-      child: Scrollbar(
-        thumbVisibility: true,
-        child: ListView.builder(
-          itemCount: shippings.length,
-          itemBuilder: (context, index) {
-            final shipping = shippings[index];
-            return ShippingCard(shipping: shipping);
-          },
-        ),
+      child: ListView.builder(
+        padding: EdgeInsets.only(bottom: 150),
+        itemCount: shippings.length,
+        itemBuilder: (context, index) {
+          final shipping = shippings[index];
+          return ShippingCard(shipping: shipping);
+        },
       ),
     );
   }
