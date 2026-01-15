@@ -17,6 +17,19 @@ abstract class AppTextStyles {
     fontFamily: 'Roboto',
   );
 
+  static const labelError = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.error,
+    fontFamily: 'Roboto',
+  );
+
+  static const errorText = TextStyle(
+    fontSize: 12,
+    color: AppColors.error,
+    fontFamily: 'Roboto',
+  );
+
   static const hint = TextStyle(
     color: AppColors.hintText,
     fontSize: 14,
@@ -77,6 +90,23 @@ abstract class AppInputStyles {
       onPressed: onToggle,
     ),
   );
+
+  // error border decoration
+  static InputDecoration withError(InputDecoration decoration) =>
+      decoration.copyWith(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+      );
 }
 
 // button styles

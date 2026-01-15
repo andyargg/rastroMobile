@@ -10,25 +10,28 @@ class GoogleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider, width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
-          child: const Center(
-            child: FaIcon(
-              FontAwesomeIcons.google,
-              color: AppColors.googleRed,
-              size: 24,
-            ),
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: const FaIcon(
+          FontAwesomeIcons.google,
+          color: AppColors.googleRed,
+          size: 20,
+        ),
+        label: const Text(
+          'Continuar con Google',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: AppColors.white,
+          side: const BorderSide(color: AppColors.divider, width: 1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),

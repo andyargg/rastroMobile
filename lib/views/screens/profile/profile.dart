@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           ProfileMenuItem(
             icon: LucideIcons.logOut,
-            label: 'Salir',
+            label: 'Cerrar sesion',
             onTap: () async {
               await authService.signOut();
               router.reevaluateGuards();
