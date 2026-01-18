@@ -1,34 +1,25 @@
-part of '../shipping_event.dart';
+import 'package:equatable/equatable.dart';
 
 sealed class ShippingEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
 
-class LoadShippingEvent extends ShippingEvent {
-  final StackRouter router;
-
-  LoadShippingEvent({
-    required this.router,
-  });
-
-  @override
-  List<Object?> get props => [router];
-}
+class LoadShippingEvent extends ShippingEvent {}
 
 class AddShipping extends ShippingEvent {
-  final String name;
-  final String trackingCode;
+  final String productName;
   final String courier;
+  final String? description;
 
   AddShipping({
-    required this.name,
-    required this.trackingCode,
+    required this.productName,
     required this.courier,
+    this.description,
   });
 
   @override
-  List<Object?> get props => [name, trackingCode, courier];
+  List<Object?> get props => [productName, courier, description];
 }
 
 class FilterShippings extends ShippingEvent {

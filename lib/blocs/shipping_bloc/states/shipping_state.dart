@@ -1,4 +1,5 @@
-part of 'shipping_state.dart';
+import 'package:equatable/equatable.dart';
+import 'package:rastro/models/shipping.dart';
 
 sealed class ShippingState extends Equatable {
   @override
