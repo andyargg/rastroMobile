@@ -5,6 +5,24 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
+  // send otp code via sms
+  Future<void> signInWithOtp(String phone) async {
+    await _supabase.auth.signInWithOtp(
+      phone: phone,
+      shouldCreateUser: true,
+    );
+  }
+
+  // verify otp code and complete authentication
+  Future<AuthResponse> verifyOtp(String phone, String token) async {
+    final response = await _supabase.auth.verifyOTP(
+      phone: phone,
+      token: token,
+      type: OtpType.sms,
+    );
+    return response;
+  }
+
   // google sign in using supabase signinwithidtoken
   Future<AuthResponse> nativeGoogleSignIn() async {
     final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
@@ -43,6 +61,21 @@ class AuthService {
       accessToken: authorization.accessToken,
     );
 
+    return response;
+  }
+
+  // send otp to new phone for phone change
+  Future<void> sendPhoneChangeOtp(String newPhone) async {
+    await _supabase.auth.updateUser(UserAttributes(phone: newPhone));
+  }
+
+  // verify otp and complete phone change
+  Future<AuthResponse> verifyPhoneChange(String phone, String token) async {
+    final response = await _supabase.auth.verifyOTP(
+      phone: phone,
+      token: token,
+      type: OtpType.phoneChange,
+    );
     return response;
   }
 

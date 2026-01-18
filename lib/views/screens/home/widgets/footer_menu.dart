@@ -3,10 +3,12 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 class FooterMenu extends StatelessWidget {
   final VoidCallback onTapProfile;
+  final VoidCallback onTapAdd;
 
   const FooterMenu({
     super.key,
     required this.onTapProfile,
+    required this.onTapAdd,
   });
 
   @override
@@ -50,7 +52,7 @@ class FooterMenu extends StatelessWidget {
                 foregroundColor: Color(0xFFC98643),
                 iconSize: 35,
               ),
-              onPressed: () {},
+              onPressed: onTapAdd,
             ),
             IconButton(
               icon: Icon(LucideIcons.user),

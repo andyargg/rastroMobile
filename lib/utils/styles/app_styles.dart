@@ -35,6 +35,13 @@ abstract class AppTextStyles {
     fontSize: 14,
   );
 
+  static const textField = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    color: AppColors.textDark,
+    fontFamily: 'Roboto',
+  );
+
   static const button = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.bold,

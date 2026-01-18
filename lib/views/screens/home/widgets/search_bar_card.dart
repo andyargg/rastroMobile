@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class SearchBarCard extends StatefulWidget {
-final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String> onSearchChanged;
 
   const SearchBarCard({
     super.key,

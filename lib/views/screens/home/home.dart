@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:rastro/data/mock_data.dart';
 import 'package:rastro/models/shipping.dart';
 import 'package:rastro/routes/app_router.dart';
+import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/views/screens/home/widgets/footer_menu.dart';
+import 'package:rastro/views/screens/home/widgets/modal_shipping.dart';
 import 'package:rastro/views/screens/home/widgets/search_bar_card.dart';
 import 'package:rastro/views/screens/home/widgets/shipping_card_builder.dart';
 
@@ -59,9 +61,8 @@ class _HomePage extends State<HomePage> {
                   ],
                 ),
                 FooterMenu(
-                  onTapProfile: () => router.push(
-                    const ProfileRoute()
-                  ),
+                  onTapProfile: () => router.push(const ProfileRoute()),
+                  onTapAdd: () => _showAddShippingModal(context),
                 ),
               ],
             ),
@@ -69,7 +70,7 @@ class _HomePage extends State<HomePage> {
         );
     }
 
-    void _filterShippings(String query){
+    void _filterShippings(String query) {
       setState(() {
         if (query.isEmpty) {
           _filteredShippings = _shippings;
@@ -84,5 +85,22 @@ class _HomePage extends State<HomePage> {
           }).toList();
         }
       });
+    }
+
+    void _showAddShippingModal(BuildContext context) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: AppColors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: const ModalShipping(),
+        ),
+      );
     }
 }

@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:rastro/routes/guards/auth_guard.dart';
 import 'package:rastro/views/screens/auth/login.dart';
+import 'package:rastro/views/screens/auth/otp_verification.dart';
 import 'package:rastro/views/screens/home/home.dart';
 import 'package:rastro/views/screens/profile/profile.dart';
 
@@ -13,7 +14,8 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
     AutoRoute(page: HomeRoute.page, initial: true, guards: [AuthGuard()]),
-    AutoRoute(page: ProfileRoute.page, guards: [AuthGuard()]),
     AutoRoute(page: LoginRoute.page),
+    AutoRoute(page: ProfileRoute.page),
+    AutoRoute(page: OtpVerificationRoute.page),
   ];
 }
