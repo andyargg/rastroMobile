@@ -4,11 +4,13 @@ import 'package:lucide_icons/lucide_icons.dart';
 class FooterMenu extends StatelessWidget {
   final VoidCallback onTapProfile;
   final VoidCallback onTapAdd;
+  final VoidCallback onTapFilter;
 
   const FooterMenu({
     super.key,
     required this.onTapProfile,
     required this.onTapAdd,
+    required this.onTapFilter,
   });
 
   @override
@@ -38,19 +40,19 @@ class FooterMenu extends StatelessWidget {
               icon: Icon(LucideIcons.slidersHorizontal),
               style: IconButton.styleFrom(
                 backgroundColor: Color(0xFFFFFFFF),
-                padding: EdgeInsets.all(27),
+                padding: EdgeInsets.all(20),
                 foregroundColor: Color(0xFFC98643),
-                iconSize: 30,
+                iconSize: 28,
               ),
-              onPressed: () {},
+              onPressed: onTapFilter,
             ),
             IconButton(
               icon: Icon(LucideIcons.plus),
               style: IconButton.styleFrom(
                 backgroundColor: Color(0xFF402E1B),
-                padding: EdgeInsets.all(27),
+                padding: EdgeInsets.all(22),
                 foregroundColor: Color(0xFFC98643),
-                iconSize: 35,
+                iconSize: 32,
               ),
               onPressed: onTapAdd,
             ),
@@ -58,9 +60,9 @@ class FooterMenu extends StatelessWidget {
               icon: Icon(LucideIcons.user),
               style: IconButton.styleFrom(
                 backgroundColor: Color(0xFFFFFFFF),
-                padding: EdgeInsets.all(27),
+                padding: EdgeInsets.all(20),
                 foregroundColor: Color(0xFFC98643),
-                iconSize: 30,
+                iconSize: 28,
               ),
               onPressed: onTapProfile,
             ),

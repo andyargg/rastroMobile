@@ -80,8 +80,8 @@ class AuthService {
   }
 
   // sign out
-  Future<void> signOut() async {
-    await _supabase.auth.signOut();
+  Future<void> signOut() async {                                                                                                                                                                              
+    await _supabase.auth.signOut(scope: SignOutScope.local);
   }
 
   String? getCurrentEmail() {

@@ -1,106 +1,115 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:rastro/data/mock_data.dart';
-import 'package:rastro/models/shipping.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rastro/blocs/shipping_bloc/events/shipping_event.dart';
+import 'package:rastro/blocs/shipping_bloc/shipping_bloc.dart';
+import 'package:rastro/blocs/shipping_bloc/states/shipping_state.dart';
 import 'package:rastro/routes/app_router.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/views/screens/home/widgets/footer_menu.dart';
+import 'package:rastro/views/screens/home/widgets/modal_filter.dart';
 import 'package:rastro/views/screens/home/widgets/modal_shipping.dart';
 import 'package:rastro/views/screens/home/widgets/search_bar_card.dart';
 import 'package:rastro/views/screens/home/widgets/shipping_card_builder.dart';
 
 @RoutePage()
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
-    const HomePage({super.key});
-
-    @override
-    State<HomePage> createState() => _HomePage();
-
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ShippingBloc()..add(LoadShippingEvent()),
+      child: const _HomeView(),
+    );
+  }
 }
 
-class _HomePage extends State<HomePage> {
-    late List<Shipping> _filteredShippings;
-    final List<Shipping> _shippings = mockShippings;
+class _HomeView extends StatelessWidget {
+  const _HomeView();
 
-    @override
-    initState() {
-        super.initState();
-        _filteredShippings = _shippings;
-    }    
-    @override
-    dispose() {
-        super.dispose();
-    }
-
-    @override
-    Widget build(BuildContext context) {
-        final router = AutoRouter.of(context);
-        return Scaffold(
-          backgroundColor: Color(0xFFE3E2E2),
-          body: SafeArea(
-            child: Stack(
+  @override
+  Widget build(BuildContext context) {
+    final router = AutoRouter.of(context);
+    return Scaffold(
+      backgroundColor: const Color(0xFFE3E2E2),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
               children: [
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12.5, 56, 12.5, 5),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFFC98643),
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                        ),
-                        child: SearchBarCard(
-                          onSearchChanged: _filterShippings,
-                        ),
-                      ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12.5, 56, 12.5, 5),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFC98643),
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
                     ),
-                    Expanded(
-                      child: ShippingCardBuilder(shippings: _filteredShippings)
+                    child: SearchBarCard(
+                      onSearchChanged: (query) {
+                        context.read<ShippingBloc>().add(SearchShippings(query));
+                      },
                     ),
-                  ],
+                  ),
                 ),
-                FooterMenu(
-                  onTapProfile: () => router.push(const ProfileRoute()),
-                  onTapAdd: () => _showAddShippingModal(context),
+                Expanded(
+                  child: BlocBuilder<ShippingBloc, ShippingState>(
+                    builder: (context, state) {
+                      if (state is ShippingLoadingState) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (state is ShippingLoadedState) {
+                        return ShippingCardBuilder(shippings: state.shippings);
+                      }
+                      if (state is ShippingErrorState) {
+                        return Center(child: Text(state.message));
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                 ),
               ],
             ),
-          )
-        );
-    }
-
-    void _filterShippings(String query) {
-      setState(() {
-        if (query.isEmpty) {
-          _filteredShippings = _shippings;
-        } else {
-          final lowerQuery = query.toLowerCase();
-
-          _filteredShippings = _shippings.where((shipping) {
-            final productMatch = shipping.productName.toLowerCase().contains(lowerQuery);
-            final courierMatch = shipping.courier.toLowerCase().contains(lowerQuery);
-
-            return productMatch || courierMatch;
-          }).toList();
-        }
-      });
-    }
-
-    void _showAddShippingModal(BuildContext context) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: AppColors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            FooterMenu(
+              onTapProfile: () => router.push(const ProfileRoute()),
+              onTapAdd: () => _showAddShippingModal(context),
+              onTapFilter: () => _showFilterModal(context),
+            ),
+          ],
         ),
-        builder: (context) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: const ModalShipping(),
+      ),
+    );
+  }
+
+  void _showFilterModal(BuildContext context) {
+    final bloc = context.read<ShippingBloc>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => BlocProvider.value(
+        value: bloc,
+        child: const ModalFilter(),
+      ),
+    );
+  }
+
+  void _showAddShippingModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
         ),
-      );
-    }
+        child: const ModalShipping(),
+      ),
+    );
+  }
 }

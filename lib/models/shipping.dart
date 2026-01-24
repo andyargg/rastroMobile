@@ -26,6 +26,21 @@ class Shipping {
 
   Map<String, dynamic> toJson() => _$ShippingToJson(this);
 
+  Shipping copyWith({
+    String? productName,
+    String? description,
+    ShippingStatus? status,
+    String? courier,
+  }) {
+    return Shipping(
+      productName: productName ?? this.productName,
+      description: description ?? this.description,
+      status: status ?? this.status,
+      courier: courier ?? this.courier,
+      createdAt: createdAt,
+    );
+  }
+
   factory Shipping.getBaseShipping(Shipping shipping, ShippingStatus newstatus) {
     return Shipping(
       productName: shipping.productName,

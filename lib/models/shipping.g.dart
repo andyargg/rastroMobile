@@ -26,5 +26,4 @@ const _$ShippingStatusEnumMap = {
   ShippingStatus.delivered: 'delivered',
   ShippingStatus.inTransit: 'inTransit',
   ShippingStatus.pending: 'pending',
-  ShippingStatus.error: 'error',
 };

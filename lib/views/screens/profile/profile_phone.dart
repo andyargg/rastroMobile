@@ -18,8 +18,6 @@ class ProfilePhone extends StatefulWidget {
 class _ProfilePhoneState extends State<ProfilePhone> {
   final _authService = GetIt.instance<AuthService>();
 
-  String? get _userPhone => _authService.currentUser?.phone;
-
   @override
   Widget build(BuildContext context) {
     final router = AutoRouter.of(context);
