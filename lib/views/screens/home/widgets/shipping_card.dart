@@ -124,7 +124,7 @@ class ShippingCard extends StatelessWidget {
       barrierLabel: '',
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (dialogCtx, _, __) {
+      pageBuilder: (dialogCtx, _,_ ) {
         return GestureDetector(
           onTap: () => Navigator.pop(dialogCtx),
           child: BackdropFilter(
@@ -219,7 +219,7 @@ class ShippingCard extends StatelessWidget {
       barrierLabel: '',
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (dialogCtx, _, __) {
+      pageBuilder: (dialogCtx, _, _) {
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: Container(

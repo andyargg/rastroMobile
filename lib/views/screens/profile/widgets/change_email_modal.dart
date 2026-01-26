@@ -89,11 +89,7 @@ class _ChangeEmailModalState extends State<ChangeEmailModal> {
       setState(() => _otpSent = true);
       _startResendTimer();
       CustomSnackbar.showSuccess(context, message: 'Codigo enviado');
-    } catch (e, stackTrace) {
-      print('========== ERROR CHANGE EMAIL ==========');
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
-      print('=========================================');
+    } catch (e) {
       if (!mounted) return;
       CustomSnackbar.showError(context, 'Error al enviar codigo: $e');
     } finally {
