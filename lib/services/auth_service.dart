@@ -5,20 +5,20 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // send otp code via sms
-  Future<void> signInWithOtp(String phone) async {
+  // send otp code via email
+  Future<void> signInWithOtp(String email) async {
     await _supabase.auth.signInWithOtp(
-      phone: phone,
+      email: email,
       shouldCreateUser: true,
     );
   }
 
   // verify otp code and complete authentication
-  Future<AuthResponse> verifyOtp(String phone, String token) async {
+  Future<AuthResponse> verifyOtp(String email, String token) async {
     final response = await _supabase.auth.verifyOTP(
-      phone: phone,
+      email: email,
       token: token,
-      type: OtpType.sms,
+      type: OtpType.email,
     );
     return response;
   }
@@ -64,17 +64,17 @@ class AuthService {
     return response;
   }
 
-  // send otp to new phone for phone change
-  Future<void> sendPhoneChangeOtp(String newPhone) async {
-    await _supabase.auth.updateUser(UserAttributes(phone: newPhone));
+  // send otp to new email for email change
+  Future<void> sendEmailChangeOtp(String newEmail) async {
+    await _supabase.auth.updateUser(UserAttributes(email: newEmail));
   }
 
-  // verify otp and complete phone change
-  Future<AuthResponse> verifyPhoneChange(String phone, String token) async {
+  // verify otp and complete email change
+  Future<AuthResponse> verifyEmailChange(String email, String token) async {
     final response = await _supabase.auth.verifyOTP(
-      phone: phone,
+      email: email,
       token: token,
-      type: OtpType.phoneChange,
+      type: OtpType.emailChange,
     );
     return response;
   }
@@ -93,4 +93,7 @@ class AuthService {
   // returns the currently authenticated supabase user or null if none
   User? get currentUser => _supabase.auth.currentUser;
   String? get accessToken => _supabase.auth.currentSession?.accessToken;
+
+  // check if user logged in with google
+  bool get isGoogleUser => currentUser?.appMetadata['provider'] == 'google';
 }

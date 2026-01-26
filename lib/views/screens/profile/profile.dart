@@ -1,27 +1,145 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:rastro/services/auth_service.dart';
-import 'package:rastro/views/screens/profile/profile_google.dart';
-import 'package:rastro/views/screens/profile/profile_phone.dart';
+import 'package:rastro/utils/styles/app_colors.dart';
+import 'package:rastro/views/screens/profile/widgets/change_email_modal.dart';
+import 'package:rastro/views/screens/profile/widgets/profile_menu_item.dart';
 
+// unified profile page for both email and google users
 @RoutePage()
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authService = GetIt.instance<AuthService>();
-    final user = authService.currentUser;
+  State<ProfilePage> createState() => _ProfilePageState();
+}
 
-    // phone users have phone field set
-    final isPhoneUser = user?.phone != null && user!.phone!.isNotEmpty;
-    debugPrint(user.toString());
-    debugPrint(isPhoneUser.toString());
-    if (isPhoneUser) {
-      return const ProfilePhone();
-    } else {
-      return const ProfileGoogle();
+class _ProfilePageState extends State<ProfilePage> {
+  final _authService = GetIt.instance<AuthService>();
+
+  @override
+  Widget build(BuildContext context) {
+    final router = AutoRouter.of(context);
+    final userName = _authService.currentUser?.userMetadata?['full_name'];
+    final userEmail = _authService.currentUser?.email;
+    final userAvatarUrl = _authService.currentUser?.userMetadata?['avatar_url'];
+    final isGoogleUser = _authService.isGoogleUser;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(LucideIcons.chevronLeft),
+          onPressed: router.pop,
+        ),
+        centerTitle: true,
+        title: const Text(
+          "Perfil",
+          style: TextStyle(
+            fontSize: 24,
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.only(top: 20),
+        children: [
+          // avatar
+          Center(
+            child: CircleAvatar(
+              radius: 62.5,
+              backgroundColor: AppColors.primary,
+              backgroundImage: userAvatarUrl != null
+                  ? NetworkImage(userAvatarUrl)
+                  : null,
+              child: userAvatarUrl == null
+                  ? const Icon(LucideIcons.user, size: 50, color: AppColors.white)
+                  : null,
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // name (only for google users)
+          if (userName != null)
+            Text(
+              userName,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+          // email
+          if (userEmail != null)
+            Text(
+              userEmail,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontFamily: 'Roboto',
+                color: AppColors.tertiary,
+              ),
+            ),
+          const SizedBox(height: 50),
+
+          const ProfileDivider(),
+
+          // change email option (only for email users)
+          if (!isGoogleUser)
+            ProfileMenuItem(
+              icon: LucideIcons.mail,
+              label: 'Cambiar email',
+              onTap: () => _showChangeEmailModal(context),
+            ),
+
+          ProfileMenuItem(
+            icon: LucideIcons.clock,
+            label: 'Historial de pedidos',
+            onTap: () {},
+          ),
+          ProfileMenuItem(
+            icon: LucideIcons.messageCircle,
+            label: 'Contactar a soporte',
+            onTap: () {},
+          ),
+          ProfileMenuItem(
+            icon: LucideIcons.logOut,
+            label: 'Cerrar sesión',
+            onTap: () async {
+              await _authService.signOut();
+              router.reevaluateGuards();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangeEmailModal(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: const ChangeEmailModal(),
+      ),
+    );
+
+    if (result == true && mounted) {
+      setState(() {});
     }
   }
 }

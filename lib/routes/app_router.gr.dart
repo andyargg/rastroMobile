@@ -80,14 +80,14 @@ class LoginRouteArgs {
 class OtpVerificationRoute extends PageRouteInfo<OtpVerificationRouteArgs> {
   OtpVerificationRoute({
     Key? key,
-    required String phone,
+    required String email,
     dynamic Function(bool)? onResult,
     List<PageRouteInfo>? children,
   }) : super(
          OtpVerificationRoute.name,
          args: OtpVerificationRouteArgs(
            key: key,
-           phone: phone,
+           email: email,
            onResult: onResult,
          ),
          initialChildren: children,
@@ -101,7 +101,7 @@ class OtpVerificationRoute extends PageRouteInfo<OtpVerificationRouteArgs> {
       final args = data.argsAs<OtpVerificationRouteArgs>();
       return OtpVerificationPage(
         key: args.key,
-        phone: args.phone,
+        email: args.email,
         onResult: args.onResult,
       );
     },
@@ -111,30 +111,30 @@ class OtpVerificationRoute extends PageRouteInfo<OtpVerificationRouteArgs> {
 class OtpVerificationRouteArgs {
   const OtpVerificationRouteArgs({
     this.key,
-    required this.phone,
+    required this.email,
     this.onResult,
   });
 
   final Key? key;
 
-  final String phone;
+  final String email;
 
   final dynamic Function(bool)? onResult;
 
   @override
   String toString() {
-    return 'OtpVerificationRouteArgs{key: $key, phone: $phone, onResult: $onResult}';
+    return 'OtpVerificationRouteArgs{key: $key, email: $email, onResult: $onResult}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! OtpVerificationRouteArgs) return false;
-    return key == other.key && phone == other.phone;
+    return key == other.key && email == other.email;
   }
 
   @override
-  int get hashCode => key.hashCode ^ phone.hashCode;
+  int get hashCode => key.hashCode ^ email.hashCode;
 }
 
 /// generated route for

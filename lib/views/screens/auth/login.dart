@@ -8,7 +8,6 @@ import 'package:rastro/utils/styles/app_styles.dart';
 import 'package:rastro/views/screens/auth/widgets/logo_widget.dart';
 import 'package:rastro/views/widgets/custom_snack_bar.dart';
 import 'package:rastro/views/widgets/google_button.dart';
-import 'package:rastro/views/widgets/phone_input_field.dart';
 
 @RoutePage()
 class LoginPage extends StatefulWidget {
@@ -21,54 +20,56 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late TextEditingController _phoneController;
+  late TextEditingController _emailController;
   final _authService = GetIt.instance<AuthService>();
 
   bool _isLoading = false;
-  String? _phoneError;
+  String? _emailError;
 
   @override
   void initState() {
-    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
     super.initState();
   }
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
-  bool _validatePhone() {
-    final digits = _phoneController.text.replaceAll(RegExp(r'\D'), '');
-    if (digits.isEmpty) {
-      setState(() => _phoneError = 'El teléfono es requerido');
+  bool _validateEmail() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      setState(() => _emailError = 'El email es requerido');
       return false;
     }
-    if (digits.length != 10) {
-      setState(() => _phoneError = 'Ingresa un número válido de 10 dígitos');
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      setState(() => _emailError = 'Ingresa un email válido');
       return false;
     }
-    setState(() => _phoneError = null);
+    setState(() => _emailError = null);
     return true;
   }
 
-  Future<void> _handlePhoneSignIn() async {
+  Future<void> _handleEmailSignIn() async {
     if (_isLoading) return;
-    if (!_validatePhone()) return;
+    if (!_validateEmail()) return;
 
     setState(() => _isLoading = true);
     try {
-      final phone = PhoneInputField.getFullNumber(_phoneController.text);
-      await _authService.signInWithOtp(phone);
+      final email = _emailController.text.trim();
+      await _authService.signInWithOtp(email);
       if (!mounted) return;
 
       context.router.push(OtpVerificationRoute(
-        phone: phone,
+        email: email,
         onResult: widget.onResult,
       ));
     } catch (e) {
       if (!mounted) return;
+      debugPrint(e.toString());
       CustomSnackbar.showError(context, 'Error al enviar código: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -110,21 +111,52 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 32),
 
-              // phone field
+              // email field
               Text(
-                _phoneError != null ? 'Número de Celular *' : 'Número de Celular',
-                style: _phoneError != null ? AppTextStyles.labelError : AppTextStyles.label,
+                _emailError != null ? 'Email *' : 'Email',
+                style: _emailError != null ? AppTextStyles.labelError : AppTextStyles.label,
               ),
               const SizedBox(height: 8),
-              PhoneInputField(
-                controller: _phoneController,
+              TextField(
+                controller: _emailController,
                 enabled: !_isLoading,
-                errorText: _phoneError,
-                onChanged: () => setState(() => _phoneError = null),
+                keyboardType: TextInputType.emailAddress,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textDark,
+                  fontFamily: 'Roboto',
+                ),
+                decoration: InputDecoration(
+                  hintText: 'ejemplo@correo.com',
+                  hintStyle: const TextStyle(color: AppColors.tertiary),
+                  filled: true,
+                  fillColor: AppColors.inputFill,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: _emailError != null
+                        ? const BorderSide(color: AppColors.error, width: 1.5)
+                        : BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: _emailError != null
+                        ? const BorderSide(color: AppColors.error, width: 1.5)
+                        : BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: _emailError != null ? AppColors.error : AppColors.primary,
+                      width: 2,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+                onChanged: (_) => setState(() => _emailError = null),
               ),
-              if (_phoneError != null) ...[
+              if (_emailError != null) ...[
                 const SizedBox(height: 4),
-                Text(_phoneError!, style: AppTextStyles.errorText),
+                Text(_emailError!, style: AppTextStyles.errorText),
               ],
               const SizedBox(height: 32),
 
@@ -133,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handlePhoneSignIn,
+                  onPressed: _isLoading ? null : _handleEmailSignIn,
                   style: AppButtonStyles.primary,
                   child: _isLoading
                       ? const SizedBox(

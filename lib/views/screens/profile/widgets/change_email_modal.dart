@@ -1,34 +1,33 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rastro/services/auth_service.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/utils/styles/app_styles.dart';
 import 'package:rastro/views/widgets/custom_snack_bar.dart';
-import 'package:rastro/views/widgets/phone_input_field.dart';
+import 'package:rastro/views/widgets/otp_input.dart';
 
-class ChangePhoneModal extends StatefulWidget {
-  const ChangePhoneModal({super.key});
+class ChangeEmailModal extends StatefulWidget {
+  const ChangeEmailModal({super.key});
 
   @override
-  State<ChangePhoneModal> createState() => _ChangePhoneModalState();
+  State<ChangeEmailModal> createState() => _ChangeEmailModalState();
 }
 
-class _ChangePhoneModalState extends State<ChangePhoneModal> {
+class _ChangeEmailModalState extends State<ChangeEmailModal> {
   final _authService = GetIt.instance<AuthService>();
-  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final List<TextEditingController> _otpControllers = List.generate(
-    6,
+    8,
     (_) => TextEditingController(),
   );
-  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
+  final List<FocusNode> _otpFocusNodes = List.generate(8, (_) => FocusNode());
 
   bool _isLoading = false;
   bool _otpSent = false;
-  String? _phoneError;
+  String? _emailError;
   String? _otpError;
-  String _newPhone = '';
+  String _newEmail = '';
 
   // resend timer
   bool _canResend = false;
@@ -37,7 +36,7 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _emailController.dispose();
     _timer?.cancel();
     for (var c in _otpControllers) {
       c.dispose();
@@ -62,36 +61,41 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
     });
   }
 
-  bool _validatePhone() {
-    final digits = _phoneController.text.replaceAll(RegExp(r'\D'), '');
-    if (digits.isEmpty) {
-      setState(() => _phoneError = 'El teléfono es requerido');
+  bool _validateEmail() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      setState(() => _emailError = 'El email es requerido');
       return false;
     }
-    if (digits.length != 10) {
-      setState(() => _phoneError = 'Ingresa un número válido de 10 dígitos');
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      setState(() => _emailError = 'Ingresa un email valido');
       return false;
     }
-    setState(() => _phoneError = null);
+    setState(() => _emailError = null);
     return true;
   }
 
   Future<void> _sendOtp() async {
     if (_isLoading) return;
-    if (!_validatePhone()) return;
+    if (!_validateEmail()) return;
 
     setState(() => _isLoading = true);
     try {
-      _newPhone = PhoneInputField.getFullNumber(_phoneController.text);
-      await _authService.sendPhoneChangeOtp(_newPhone);
+      _newEmail = _emailController.text.trim();
+      await _authService.sendEmailChangeOtp(_newEmail);
       if (!mounted) return;
 
       setState(() => _otpSent = true);
       _startResendTimer();
-      CustomSnackbar.showSuccess(context, message: 'Código enviado');
-    } catch (e) {
+      CustomSnackbar.showSuccess(context, message: 'Codigo enviado');
+    } catch (e, stackTrace) {
+      print('========== ERROR CHANGE EMAIL ==========');
+      print('Error: $e');
+      print('StackTrace: $stackTrace');
+      print('=========================================');
       if (!mounted) return;
-      CustomSnackbar.showError(context, 'Error al enviar código: $e');
+      CustomSnackbar.showError(context, 'Error al enviar codigo: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -102,9 +106,9 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
 
     setState(() => _isLoading = true);
     try {
-      await _authService.sendPhoneChangeOtp(_newPhone);
+      await _authService.sendEmailChangeOtp(_newEmail);
       if (!mounted) return;
-      CustomSnackbar.showSuccess(context, message: 'Código reenviado');
+      CustomSnackbar.showSuccess(context, message: 'Codigo reenviado');
       _startResendTimer();
     } catch (e) {
       if (!mounted) return;
@@ -119,38 +123,38 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
   void _onOtpChanged(int index, String value) {
     setState(() => _otpError = null);
 
-    if (value.length == 1 && index < 5) {
+    if (value.length == 1 && index < 7) {
       _otpFocusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _otpFocusNodes[index - 1].requestFocus();
     }
 
-    if (_otpCode.length == 6) {
+    if (_otpCode.length == 8) {
       _verifyOtp();
     }
   }
 
   Future<void> _verifyOtp() async {
     final code = _otpCode;
-    if (code.length != 6) {
-      setState(() => _otpError = 'Ingresa los 6 dígitos');
+    if (code.length != 8) {
+      setState(() => _otpError = 'Ingresa los 8 digitos');
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      final response = await _authService.verifyPhoneChange(_newPhone, code);
+      final response = await _authService.verifyEmailChange(_newEmail, code);
       if (!mounted) return;
 
       if (response.user != null) {
-        CustomSnackbar.showSuccess(context, message: 'Número actualizado');
+        CustomSnackbar.showSuccess(context, message: 'Email actualizado');
         Navigator.pop(context, true);
       } else {
-        setState(() => _otpError = 'Código inválido');
+        setState(() => _otpError = 'Codigo invalido');
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() => _otpError = 'Código inválido o expirado');
+      setState(() => _otpError = 'Codigo invalido o expirado');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -180,25 +184,56 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
           // title
           Center(
             child: Text(
-              _otpSent ? 'Verificar código' : 'Cambiar número',
+              _otpSent ? 'Verificar codigo' : 'Cambiar email',
               style: AppTextStyles.title,
             ),
           ),
           const SizedBox(height: 24),
 
           if (!_otpSent) ...[
-            // phone input step
-            Text('Nuevo número de celular', style: AppTextStyles.label),
+            // email input step
+            Text('Nuevo email', style: AppTextStyles.label),
             const SizedBox(height: 8),
-            PhoneInputField(
-              controller: _phoneController,
+            TextField(
+              controller: _emailController,
               enabled: !_isLoading,
-              errorText: _phoneError,
-              onChanged: () => setState(() => _phoneError = null),
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(
+                fontSize: 16,
+                color: AppColors.textDark,
+                fontFamily: 'Roboto',
+              ),
+              decoration: InputDecoration(
+                hintText: 'ejemplo@correo.com',
+                hintStyle: const TextStyle(color: AppColors.tertiary),
+                filled: true,
+                fillColor: AppColors.inputFill,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: _emailError != null
+                      ? const BorderSide(color: AppColors.error, width: 1.5)
+                      : BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: _emailError != null
+                      ? const BorderSide(color: AppColors.error, width: 1.5)
+                      : BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: _emailError != null ? AppColors.error : AppColors.primary,
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              ),
+              onChanged: (_) => setState(() => _emailError = null),
             ),
-            if (_phoneError != null) ...[
+            if (_emailError != null) ...[
               const SizedBox(height: 4),
-              Text(_phoneError!, style: AppTextStyles.errorText),
+              Text(_emailError!, style: AppTextStyles.errorText),
             ],
             const SizedBox(height: 24),
 
@@ -218,27 +253,31 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
                           valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                         ),
                       )
-                    : const Text('ENVIAR CÓDIGO', style: AppTextStyles.button),
+                    : const Text('ENVIAR CODIGO', style: AppTextStyles.button),
               ),
             ),
           ] else ...[
             // otp verification step
             Center(
               child: Text(
-                'Ingresa el código enviado a',
+                'Ingresa el codigo enviado a',
                 style: AppTextStyles.body,
               ),
             ),
             const SizedBox(height: 4),
             Center(
-              child: Text(_newPhone, style: AppTextStyles.label),
+              child: Text(_newEmail, style: AppTextStyles.label),
             ),
             const SizedBox(height: 24),
 
             // otp fields
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(6, (index) => _buildOtpField(index)),
+            OtpInput(
+              digitCount: 8,
+              controllers: _otpControllers,
+              focusNodes: _otpFocusNodes,
+              enabled: !_isLoading,
+              hasError: _otpError != null,
+              onChanged: _onOtpChanged,
             ),
             if (_otpError != null) ...[
               const SizedBox(height: 8),
@@ -272,7 +311,7 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('¿No recibiste el código? ', style: AppTextStyles.body),
+                  const Text('No recibiste el codigo? ', style: AppTextStyles.body),
                   GestureDetector(
                     onTap: _canResend ? _resendOtp : null,
                     child: Text(
@@ -290,52 +329,6 @@ class _ChangePhoneModalState extends State<ChangePhoneModal> {
             ),
           ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildOtpField(int index) {
-    return SizedBox(
-      width: 48,
-      height: 56,
-      child: TextField(
-        controller: _otpControllers[index],
-        focusNode: _otpFocusNodes[index],
-        enabled: !_isLoading,
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        maxLength: 1,
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: AppColors.textDark,
-        ),
-        decoration: InputDecoration(
-          counterText: '',
-          filled: true,
-          fillColor: AppColors.inputFill,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: _otpError != null
-                ? const BorderSide(color: AppColors.error, width: 1.5)
-                : BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: _otpError != null
-                ? const BorderSide(color: AppColors.error, width: 1.5)
-                : BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: _otpError != null ? AppColors.error : AppColors.primary,
-              width: 2,
-            ),
-          ),
-        ),
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        onChanged: (value) => _onOtpChanged(index, value),
       ),
     );
   }

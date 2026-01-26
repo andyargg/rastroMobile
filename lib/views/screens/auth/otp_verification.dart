@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rastro/services/auth_service.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/utils/styles/app_styles.dart';
 import 'package:rastro/views/screens/auth/widgets/logo_widget.dart';
 import 'package:rastro/views/widgets/custom_snack_bar.dart';
+import 'package:rastro/views/widgets/otp_input.dart';
 
 @RoutePage()
 class OtpVerificationPage extends StatefulWidget {
-  final String phone;
+  final String email;
   final Function(bool)? onResult;
 
   const OtpVerificationPage({
     super.key,
-    required this.phone,
+    required this.email,
     this.onResult,
   });
 
@@ -27,10 +27,10 @@ class OtpVerificationPage extends StatefulWidget {
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final _authService = GetIt.instance<AuthService>();
   final List<TextEditingController> _controllers = List.generate(
-    6,
+    8,
     (_) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final List<FocusNode> _focusNodes = List.generate(8, (_) => FocusNode());
 
   bool _isLoading = false;
   bool _canResend = false;
@@ -75,27 +75,27 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   void _onOtpChanged(int index, String value) {
     setState(() => _otpError = null);
 
-    if (value.length == 1 && index < 5) {
+    if (value.length == 1 && index < 7) {
       _focusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
     }
 
-    if (_otpCode.length == 6) {
+    if (_otpCode.length == 8) {
       _verifyOtp();
     }
   }
 
   Future<void> _verifyOtp() async {
     final code = _otpCode;
-    if (code.length != 6) {
-      setState(() => _otpError = 'Ingresa los 6 dígitos');
+    if (code.length != 8) {
+      setState(() => _otpError = 'Ingresa los 8 dígitos');
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      final response = await _authService.verifyOtp(widget.phone, code);
+      final response = await _authService.verifyOtp(widget.email, code);
       if (!mounted) return;
 
       if (response.user != null) {
@@ -116,7 +116,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
     setState(() => _isLoading = true);
     try {
-      await _authService.signInWithOtp(widget.phone);
+      await _authService.signInWithOtp(widget.email);
       if (!mounted) return;
       CustomSnackbar.showSuccess(context, message: 'Código reenviado');
       _startResendTimer();
@@ -151,22 +151,26 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               const Text('Verificar código', style: AppTextStyles.title),
               const SizedBox(height: 16),
               const Text(
-                'Ingresa el código de 6 dígitos enviado a',
+                'Ingresa el código de 8 dígitos enviado a',
                 style: AppTextStyles.body,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
-                widget.phone,
+                widget.email,
                 style: AppTextStyles.label,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
 
               // otp fields
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(6, (index) => _buildOtpField(index)),
+              OtpInput(
+                digitCount: 8,
+                controllers: _controllers,
+                focusNodes: _focusNodes,
+                enabled: !_isLoading,
+                hasError: _otpError != null,
+                onChanged: _onOtpChanged,
               ),
               if (_otpError != null) ...[
                 const SizedBox(height: 8),
@@ -221,52 +225,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildOtpField(int index) {
-    return SizedBox(
-      width: 48,
-      height: 60,
-      child: TextField(
-        controller: _controllers[index],
-        focusNode: _focusNodes[index],
-        enabled: !_isLoading,
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        maxLength: 1,
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: AppColors.textDark,
-        ),
-        decoration: InputDecoration(
-          counterText: '',
-          filled: true,
-          fillColor: AppColors.inputFill,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: _otpError != null
-                ? const BorderSide(color: AppColors.error, width: 1.5)
-                : BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: _otpError != null
-                ? const BorderSide(color: AppColors.error, width: 1.5)
-                : BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: _otpError != null ? AppColors.error : AppColors.primary,
-              width: 2,
-            ),
-          ),
-        ),
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        onChanged: (value) => _onOtpChanged(index, value),
       ),
     );
   }
