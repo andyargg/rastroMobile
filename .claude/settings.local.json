@@ -15,7 +15,8 @@
       "WebFetch(domain:supabase.com)",
       "Bash(keytool -list:*)",
       "Bash(findstr:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(wc:*)"
     ]
   }
 }
