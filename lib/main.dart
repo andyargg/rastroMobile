@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rastro/routes/app_router.dart';
 import 'package:rastro/services/auth_service.dart';
+import 'package:rastro/services/google_auth/google_auth_provider.dart';
+import 'package:rastro/services/google_auth/mobile_google_auth.dart';
+import 'package:rastro/services/google_auth/web_google_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final getIt = GetIt.instance;
@@ -19,9 +23,15 @@ void main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
-  // register auth service with get_it
-  final authService = AuthService();
-  getIt.registerSingleton<AuthService>(authService);
+  // Register platform-specific GoogleAuthProvider
+  if (kIsWeb) {
+    getIt.registerSingleton<GoogleAuthProvider>(WebGoogleAuth());
+  } else {
+    getIt.registerSingleton<GoogleAuthProvider>(MobileGoogleAuth());
+  }
+
+  // Register AuthService (depends on GoogleAuthProvider)
+  getIt.registerSingleton<AuthService>(AuthService());
 
   runApp(MyApp());
 }

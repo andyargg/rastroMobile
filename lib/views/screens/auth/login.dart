@@ -80,9 +80,12 @@ class _LoginPageState extends State<LoginPage> {
     if (_isLoading) return;
     setState(() => _isLoading = true);
     try {
-      final response = await _authService.nativeGoogleSignIn();
+      final response = await _authService.googleSignIn();
       if (!mounted) return;
-      if (response.user != null) {
+
+      // For web, isRedirectFlow is true and response is null.
+      // The AuthGuard will detect the session after the redirect.
+      if (!_authService.isGoogleRedirectFlow && response?.user != null) {
         widget.onResult?.call(true);
       }
     } catch (e) {
