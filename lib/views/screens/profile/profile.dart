@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -112,13 +114,48 @@ class _ProfilePageState extends State<ProfilePage> {
           ProfileMenuItem(
             icon: LucideIcons.logOut,
             label: 'Cerrar sesión',
-            onTap: () async {
-              await _authService.signOut();
-              router.reevaluateGuards();
-            },
+            onTap: () => _showLogoutConfirmation(context, router),
           ),
         ],
       ),
+    );
+  }
+
+  void _showLogoutConfirmation(BuildContext context, StackRouter router) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: '',
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (dialogCtx, _, __) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Container(
+            color: Colors.black.withValues(alpha: 0.3),
+            alignment: Alignment.center,
+            child: AlertDialog(
+              title: const Text('Confirmar'),
+              content:
+                  const Text('¿Estás seguro de que querés cerrar sesión?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(dialogCtx);
+                    await _authService.signOut();
+                    router.reevaluateGuards();
+                  },
+                  child: const Text('Cerrar sesión'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

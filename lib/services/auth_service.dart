@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get_it/get_it.dart';
 import 'package:rastro/services/google_auth/google_auth_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -48,7 +50,7 @@ class AuthService {
   }
 
   // sign out
-  Future<void> signOut() async {                                                                                                                                                                              
+  Future<void> signOut() async {
     await _supabase.auth.signOut(scope: SignOutScope.local);
   }
 
@@ -64,4 +66,27 @@ class AuthService {
 
   // check if user logged in with google
   bool get isGoogleUser => currentUser?.appMetadata['provider'] == 'google';
+
+  // return the auth provider ('email', 'google', etc.) for a given email, or null
+  Future<String?> getEmailProvider(String email) async {
+    try {
+      final result = await _supabase.rpc(
+        'get_provider_for_email',
+        params: {'lookup_email': email},
+      );
+      return result as String?;
+    } catch (_) {
+      // fail open: if the rpc is unavailable, allow sign-in
+      return null;
+    }
+  }
+
+  // decode email claim from a google id token (jwt)
+  String _emailFromIdToken(String idToken) {
+    final parts = idToken.split('.');
+    final normalized = base64Url.normalize(parts[1]);
+    final payload = utf8.decode(base64Url.decode(normalized));
+    final map = jsonDecode(payload) as Map<String, dynamic>;
+    return map['email'] as String;
+  }
 }

@@ -60,6 +60,19 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
     try {
       final email = _emailController.text.trim();
+
+      // block if the email is already registered with google
+      final provider = await _authService.getEmailProvider(email);
+      if (provider == 'google') {
+        if (!mounted) return;
+        CustomSnackbar.showError(
+          context,
+          'Este email está registrado con Google. '
+          'Usá el botón de Google para iniciar sesión.',
+        );
+        return;
+      }
+
       await _authService.signInWithOtp(email);
       if (!mounted) return;
 
