@@ -72,4 +72,3 @@ class FooterMenu extends StatelessWidget {
     );
   }
 }
-
