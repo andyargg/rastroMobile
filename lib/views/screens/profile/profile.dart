@@ -128,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
       barrierLabel: '',
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (dialogCtx, _, __) {
+      pageBuilder: (dialogCtx, _, _) {
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: Container(
