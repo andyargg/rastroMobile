@@ -4,12 +4,15 @@ import 'package:rastro/blocs/shipment_bloc/states/shipment_state.dart';
 import 'package:rastro/models/shipment.dart';
 import 'package:rastro/models/shipment_filter.dart';
 import 'package:rastro/services/shipment_service.dart';
+import 'package:rastro/services/tracking_service.dart';
 
 class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
   final ShipmentService _service;
+  final TrackingService _trackingService;
 
-  ShipmentBloc({ShipmentService? service})
+  ShipmentBloc({ShipmentService? service, TrackingService? trackingService})
       : _service = service ?? ShipmentService(),
+        _trackingService = trackingService ?? TrackingService(),
         super(ShipmentInitial()) {
     on<LoadShipments>(_onLoad);
     on<AddShipment>(_onAdd);
@@ -18,6 +21,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
     on<ClearShipmentFilter>(_onClearFilter);
     on<EditShipment>(_onEdit);
     on<DeleteShipment>(_onDelete);
+    on<TrackShipment>(_onTrack);
   }
 
   List<Shipment> _allShipments = [];
@@ -46,6 +50,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
     try {
       final shipment = await _service.create(
         name: event.name,
+        trackingNumber: event.trackingNumber,
         courier: event.courier,
         description: event.description,
         status: event.status,
@@ -145,5 +150,35 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
     }
 
     return result;
+  }
+
+  Future<void> _onTrack(
+    TrackShipment event,
+    Emitter<ShipmentState> emit,
+  ) async {
+    emit(ShipmentTracking(event.shipment));
+
+    try {
+      final result = await _trackingService.track(
+        trackingNumber: event.shipment.trackingNumber,
+        courier: event.shipment.courier.toLowerCase(),
+      );
+
+      if (result.success && result.status.isNotEmpty) {
+        final updated = event.shipment.copyWith(status: result.status);
+        await _service.update(updated);
+
+        final index = _allShipments.indexWhere((s) => s.id == updated.id);
+        if (index != -1) {
+          _allShipments[index] = updated;
+        }
+
+        emit(ShipmentTrackingResult(result, updated));
+      } else {
+        emit(ShipmentTrackingResult(result, event.shipment));
+      }
+    } catch (e) {
+      emit(ShipmentError(e.toString()));
+    }
   }
 }

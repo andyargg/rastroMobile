@@ -1,12 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rastro/blocs/shipping_bloc/events/shipping_event.dart';
-import 'package:rastro/blocs/shipping_bloc/shipping_bloc.dart';
-import 'package:rastro/blocs/shipping_bloc/states/shipping_state.dart';
-import 'package:rastro/models/shipping.dart';
+import 'package:rastro/blocs/shipment_bloc/events/shipment_event.dart';
+import 'package:rastro/blocs/shipment_bloc/shipment_bloc.dart';
+import 'package:rastro/blocs/shipment_bloc/states/shipment_state.dart';
+import 'package:rastro/models/shipment.dart';
 import 'package:rastro/routes/app_router.dart';
-import 'package:rastro/utils/enums/statuses.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/views/screens/dashboard/widgets/courier_breakdown.dart';
 import 'package:rastro/views/screens/dashboard/widgets/recent_shippings_panel.dart';
@@ -24,7 +23,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ShippingBloc()..add(LoadShippingEvent()),
+      create: (_) => ShipmentBloc()..add(LoadShipments()),
       child: const _HomeView(),
     );
   }
@@ -67,21 +66,21 @@ class _HomeView extends StatelessWidget {
                 ),
                 child: SearchBarCard(
                   onSearchChanged: (query) {
-                    context.read<ShippingBloc>().add(SearchShippings(query));
+                    context.read<ShipmentBloc>().add(SearchShipments(query));
                   },
                 ),
               ),
             ),
             Expanded(
-              child: BlocBuilder<ShippingBloc, ShippingState>(
+              child: BlocBuilder<ShipmentBloc, ShipmentState>(
                 builder: (context, state) {
-                  if (state is ShippingLoadingState) {
+                  if (state is ShipmentLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  if (state is ShippingLoadedState) {
-                    return ShippingCardBuilder(shippings: state.shippings);
+                  if (state is ShipmentLoaded) {
+                    return ShippingCardBuilder(shipments: state.shipments);
                   }
-                  if (state is ShippingErrorState) {
+                  if (state is ShipmentError) {
                     return Center(child: Text(state.message));
                   }
                   return const SizedBox.shrink();
@@ -100,28 +99,26 @@ class _HomeView extends StatelessWidget {
   }
 
   Widget _buildWebLayout(BuildContext context, StackRouter router) {
-    return BlocBuilder<ShippingBloc, ShippingState>(
+    return BlocBuilder<ShipmentBloc, ShipmentState>(
       builder: (context, state) {
-        if (state is ShippingLoadingState) {
+        if (state is ShipmentLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (state is ShippingErrorState) {
+        if (state is ShipmentError) {
           return Center(child: Text(state.message));
         }
-        if (state is ShippingLoadedState) {
-          final shippings = state.shippings;
+        if (state is ShipmentLoaded) {
+          final shipments = state.shipments;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left: Dashboard panel
               Expanded(
                 flex: 4,
-                child: _buildDashboardPanel(shippings),
+                child: _buildDashboardPanel(shipments),
               ),
-              // Right: Shipping list
               Expanded(
                 flex: 3,
-                child: _buildShippingListPanel(context, shippings, router),
+                child: _buildShippingListPanel(context, shipments, router),
               ),
             ],
           );
@@ -131,17 +128,17 @@ class _HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildDashboardPanel(List<Shipping> shippings) {
-    final total = shippings.length;
+  Widget _buildDashboardPanel(List<Shipment> shipments) {
+    final total = shipments.length;
     final delivered =
-        shippings.where((s) => s.status == ShippingStatus.delivered).length;
+        shipments.where((s) => s.status.toLowerCase() == 'entregado').length;
     final inTransit =
-        shippings.where((s) => s.status == ShippingStatus.inTransit).length;
+        shipments.where((s) => s.status.toLowerCase() == 'en tránsito').length;
     final pending =
-        shippings.where((s) => s.status == ShippingStatus.pending).length;
+        shipments.where((s) => s.status.toLowerCase() == 'pendiente').length;
 
-    final recent = List.of(shippings)
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final recent = List.of(shipments)
+      ..sort((a, b) => b.entryDate.compareTo(a.entryDate));
     final recentThree = recent.take(3).toList();
 
     return SingleChildScrollView(
@@ -165,9 +162,9 @@ class _HomeView extends StatelessWidget {
             pending: pending,
           ),
           const SizedBox(height: 16),
-          CourierBreakdown(shippings: shippings),
+          CourierBreakdown(shipments: shipments),
           const SizedBox(height: 16),
-          RecentShippingsPanel(recentShippings: recentThree),
+          RecentShippingsPanel(recentShipments: recentThree),
         ],
       ),
     );
@@ -175,7 +172,7 @@ class _HomeView extends StatelessWidget {
 
   Widget _buildShippingListPanel(
     BuildContext context,
-    List<Shipping> shippings,
+    List<Shipment> shipments,
     StackRouter router,
   ) {
     return Column(
@@ -189,13 +186,13 @@ class _HomeView extends StatelessWidget {
             ),
             child: SearchBarCard(
               onSearchChanged: (query) {
-                context.read<ShippingBloc>().add(SearchShippings(query));
+                context.read<ShipmentBloc>().add(SearchShipments(query));
               },
             ),
           ),
         ),
         Expanded(
-          child: ShippingCardBuilder(shippings: shippings),
+          child: ShippingCardBuilder(shipments: shipments),
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -228,7 +225,7 @@ class _HomeView extends StatelessWidget {
   }
 
   void _showFilterModal(BuildContext context) {
-    final bloc = context.read<ShippingBloc>();
+    final bloc = context.read<ShipmentBloc>();
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,

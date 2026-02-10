@@ -11,19 +11,21 @@ class LoadShipments extends ShipmentEvent {}
 
 class AddShipment extends ShipmentEvent {
   final String name;
+  final String trackingNumber;
   final String courier;
   final String? description;
   final String status;
 
   AddShipment({
     required this.name,
+    required this.trackingNumber,
     required this.courier,
     this.description,
     this.status = 'Pendiente',
   });
 
   @override
-  List<Object?> get props => [name, courier, description, status];
+  List<Object?> get props => [name, trackingNumber, courier, description, status];
 }
 
 class SearchShipments extends ShipmentEvent {
@@ -62,4 +64,13 @@ class DeleteShipment extends ShipmentEvent {
 
   @override
   List<Object?> get props => [id];
+}
+
+class TrackShipment extends ShipmentEvent {
+  final Shipment shipment;
+
+  TrackShipment(this.shipment);
+
+  @override
+  List<Object?> get props => [shipment];
 }

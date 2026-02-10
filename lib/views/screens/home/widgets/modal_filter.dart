@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:rastro/blocs/shipping_bloc/events/shipping_event.dart';
-import 'package:rastro/blocs/shipping_bloc/shipping_bloc.dart';
-import 'package:rastro/blocs/shipping_bloc/states/shipping_state.dart';
+import 'package:rastro/blocs/shipment_bloc/events/shipment_event.dart';
+import 'package:rastro/blocs/shipment_bloc/shipment_bloc.dart';
+import 'package:rastro/blocs/shipment_bloc/states/shipment_state.dart';
 import 'package:rastro/helpers/courier_assets.dart';
-import 'package:rastro/models/shipping_filter.dart';
-import 'package:rastro/utils/enums/statuses.dart';
+import 'package:rastro/models/shipment_filter.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/utils/styles/app_styles.dart';
 
@@ -18,23 +17,25 @@ class ModalFilter extends StatefulWidget {
 }
 
 class _ModalFilterState extends State<ModalFilter> {
-  late Set<ShippingStatus> _statuses;
+  late Set<String> _statuses;
   late Set<String> _couriers;
   late bool _sortByDateAsc;
+
+  static const _statusOptions = ['Pendiente', 'En tránsito', 'Entregado'];
 
   @override
   void initState() {
     super.initState();
-    final state = context.read<ShippingBloc>().state;
-    final current = state is ShippingLoadedState
+    final state = context.read<ShipmentBloc>().state;
+    final current = state is ShipmentLoaded
         ? state.filter
-        : const ShippingFilter();
+        : const ShipmentFilter();
     _statuses = Set.from(current.statuses);
     _couriers = Set.from(current.couriers);
     _sortByDateAsc = current.sortByDateAsc;
   }
 
-  void _toggleStatus(ShippingStatus status) {
+  void _toggleStatus(String status) {
     setState(() {
       if (_statuses.contains(status)) {
         _statuses.remove(status);
@@ -67,7 +68,7 @@ class _ModalFilterState extends State<ModalFilter> {
   }
 
   void _apply() {
-    context.read<ShippingBloc>().add(ApplyFilter(ShippingFilter(
+    context.read<ShipmentBloc>().add(ApplyShipmentFilter(ShipmentFilter(
       statuses: Set.from(_statuses),
       couriers: Set.from(_couriers),
       sortByDateAsc: _sortByDateAsc,
@@ -84,7 +85,6 @@ class _ModalFilterState extends State<ModalFilter> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          // drag handle
           Center(
             child: Container(
               width: 40,
@@ -97,31 +97,26 @@ class _ModalFilterState extends State<ModalFilter> {
           ),
           const SizedBox(height: 16),
 
-          // title
           Center(
             child: Text('Filtrar envíos', style: AppTextStyles.title),
           ),
           const SizedBox(height: 24),
 
-          // status section
           Text('Estado', style: AppTextStyles.label),
           const SizedBox(height: 10),
           _buildStatusChips(),
           const SizedBox(height: 20),
 
-          // courier section
           Text('Empresa', style: AppTextStyles.label),
           const SizedBox(height: 10),
           _buildCourierChips(),
           const SizedBox(height: 20),
 
-          // date sort section
           Text('Fecha', style: AppTextStyles.label),
           const SizedBox(height: 10),
           _buildDateSort(),
           const SizedBox(height: 24),
 
-          // action buttons
           _buildActions(),
         ],
         ),
@@ -133,28 +128,28 @@ class _ModalFilterState extends State<ModalFilter> {
     return Wrap(
       spacing: 10,
       runSpacing: 10,
-      children: ShippingStatus.values.map((status) {
+      children: _statusOptions.map((status) {
         final isSelected = _statuses.contains(status);
-    
+
         return GestureDetector(
           onTap: () => _toggleStatus(status),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected ? status.getColor() : AppColors.inputFill,
+              color: isSelected ? AppColors.primary.withValues(alpha: 0.15) : AppColors.inputFill,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? status.getTextColor() : AppColors.divider,
+                color: isSelected ? AppColors.primary : AppColors.divider,
                 width: 1.5,
               ),
             ),
             child: Text(
-              status.getLabel(),
+              status,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? status.getTextColor() : AppColors.tertiary,
+                color: isSelected ? AppColors.textDark : AppColors.tertiary,
                 fontFamily: 'Roboto',
               ),
             ),

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:rastro/helpers/courier_assets.dart';
-import 'package:rastro/models/shipping.dart';
+import 'package:rastro/models/shipment.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 
 class CourierBreakdown extends StatelessWidget {
-  final List<Shipping> shippings;
+  final List<Shipment> shipments;
 
-  const CourierBreakdown({super.key, required this.shippings});
+  const CourierBreakdown({super.key, required this.shipments});
 
   @override
   Widget build(BuildContext context) {
-    final total = shippings.length;
+    final total = shipments.length;
     final courierColors = [
       AppColors.primary,
       const Color(0xFF402E1B),
@@ -41,7 +41,7 @@ class CourierBreakdown extends StatelessWidget {
               final name = courier.key;
               final logoPath = courier.value;
               final count =
-                  shippings.where((s) => s.courier == name).length;
+                  shipments.where((s) => s.courier == name).length;
               final fraction = total > 0 ? count / total : 0.0;
               final color = courierColors[idx % courierColors.length];
 

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:rastro/models/shipment.dart';
 import 'package:rastro/models/shipment_filter.dart';
+import 'package:rastro/services/tracking_service.dart';
 
 sealed class ShipmentState extends Equatable {
   @override
@@ -28,4 +29,23 @@ class ShipmentError extends ShipmentState {
 
   @override
   List<Object?> get props => [message];
+}
+
+class ShipmentTracking extends ShipmentState {
+  final Shipment shipment;
+
+  ShipmentTracking(this.shipment);
+
+  @override
+  List<Object?> get props => [shipment];
+}
+
+class ShipmentTrackingResult extends ShipmentState {
+  final TrackingResult result;
+  final Shipment shipment;
+
+  ShipmentTrackingResult(this.result, this.shipment);
+
+  @override
+  List<Object?> get props => [result, shipment];
 }

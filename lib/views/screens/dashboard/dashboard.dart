@@ -1,10 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rastro/blocs/shipping_bloc/events/shipping_event.dart';
-import 'package:rastro/blocs/shipping_bloc/shipping_bloc.dart';
-import 'package:rastro/blocs/shipping_bloc/states/shipping_state.dart';
-import 'package:rastro/utils/enums/statuses.dart';
+import 'package:rastro/blocs/shipment_bloc/events/shipment_event.dart';
+import 'package:rastro/blocs/shipment_bloc/shipment_bloc.dart';
+import 'package:rastro/blocs/shipment_bloc/states/shipment_state.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/views/screens/dashboard/widgets/courier_breakdown.dart';
 import 'package:rastro/views/screens/dashboard/widgets/recent_shippings_panel.dart';
@@ -17,7 +16,7 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ShippingBloc()..add(LoadShippingEvent()),
+      create: (_) => ShipmentBloc()..add(LoadShipments()),
       child: const _DashboardView(),
     );
   }
@@ -42,29 +41,29 @@ class _DashboardView extends StatelessWidget {
           ),
         ),
       ),
-      body: BlocBuilder<ShippingBloc, ShippingState>(
+      body: BlocBuilder<ShipmentBloc, ShipmentState>(
         builder: (context, state) {
-          if (state is ShippingLoadingState) {
+          if (state is ShipmentLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (state is ShippingErrorState) {
+          if (state is ShipmentError) {
             return Center(child: Text(state.message));
           }
-          if (state is ShippingLoadedState) {
-            final shippings = state.shippings;
-            final total = shippings.length;
-            final delivered = shippings
-                .where((s) => s.status == ShippingStatus.delivered)
+          if (state is ShipmentLoaded) {
+            final shipments = state.shipments;
+            final total = shipments.length;
+            final delivered = shipments
+                .where((s) => s.status.toLowerCase() == 'entregado')
                 .length;
-            final inTransit = shippings
-                .where((s) => s.status == ShippingStatus.inTransit)
+            final inTransit = shipments
+                .where((s) => s.status.toLowerCase() == 'en tránsito')
                 .length;
-            final pending = shippings
-                .where((s) => s.status == ShippingStatus.pending)
+            final pending = shipments
+                .where((s) => s.status.toLowerCase() == 'pendiente')
                 .length;
 
-            final recent = List.of(shippings)
-              ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+            final recent = List.of(shipments)
+              ..sort((a, b) => b.entryDate.compareTo(a.entryDate));
             final recentThree = recent.take(3).toList();
 
             return LayoutBuilder(
@@ -92,20 +91,20 @@ class _DashboardView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: CourierBreakdown(shippings: shippings),
+                              child: CourierBreakdown(shipments: shipments),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: RecentShippingsPanel(
-                                recentShippings: recentThree,
+                                recentShipments: recentThree,
                               ),
                             ),
                           ],
                         )
                       else ...[
-                        CourierBreakdown(shippings: shippings),
+                        CourierBreakdown(shipments: shipments),
                         const SizedBox(height: 16),
-                        RecentShippingsPanel(recentShippings: recentThree),
+                        RecentShippingsPanel(recentShipments: recentThree),
                       ],
                     ],
                   ),

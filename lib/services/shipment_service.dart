@@ -19,6 +19,7 @@ class ShipmentService {
 
   Future<Shipment> create({
     required String name,
+    required String trackingNumber,
     String? description,
     required String status,
     required String courier,
@@ -26,6 +27,7 @@ class ShipmentService {
     final shipment = Shipment(
       id: '',
       name: name,
+      trackingNumber: trackingNumber,
       description: description,
       status: status,
       courier: courier,

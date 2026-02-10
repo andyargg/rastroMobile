@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:rastro/blocs/shipment_bloc/events/shipment_event.dart';
+import 'package:rastro/blocs/shipment_bloc/shipment_bloc.dart';
 import 'package:rastro/helpers/courier_assets.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/utils/styles/app_styles.dart';
@@ -30,6 +33,24 @@ class _ModalShippingState extends State<ModalShipping> {
     super.dispose();
   }
 
+  void _submit() {
+    final name = _controllerName.text.trim();
+    final trackingNumber = _controllerShipCode.text.trim();
+    final courier = _selectedCourier;
+
+    if (name.isEmpty || trackingNumber.isEmpty || courier == null) {
+      return;
+    }
+
+    context.read<ShipmentBloc>().add(AddShipment(
+      name: name,
+      trackingNumber: trackingNumber,
+      courier: courier,
+    ));
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -38,7 +59,6 @@ class _ModalShippingState extends State<ModalShipping> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // drag handle
           Center(
             child: Container(
               width: 40,
@@ -51,13 +71,11 @@ class _ModalShippingState extends State<ModalShipping> {
           ),
           const SizedBox(height: 16),
 
-          // title
           Center(
             child: Text('Agregar envío', style: AppTextStyles.title),
           ),
           const SizedBox(height: 24),
 
-          // name field
           Text('Nombre del producto', style: AppTextStyles.label),
           const SizedBox(height: 8),
           TextField(
@@ -67,7 +85,6 @@ class _ModalShippingState extends State<ModalShipping> {
           ),
           const SizedBox(height: 16),
 
-          // tracking code field
           Text('Código de seguimiento', style: AppTextStyles.label),
           const SizedBox(height: 8),
           TextField(
@@ -77,7 +94,6 @@ class _ModalShippingState extends State<ModalShipping> {
           ),
           const SizedBox(height: 16),
 
-          // courier dropdown
           Text('Courier', style: AppTextStyles.label),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
@@ -95,15 +111,11 @@ class _ModalShippingState extends State<ModalShipping> {
           ),
           const SizedBox(height: 24),
 
-          // submit button
           SizedBox(
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () {
-                // todo: add shipping logic
-                Navigator.pop(context);
-              },
+              onPressed: _submit,
               style: AppButtonStyles.primary,
               child: const Text('AGREGAR ENVÍO', style: AppTextStyles.button),
             ),

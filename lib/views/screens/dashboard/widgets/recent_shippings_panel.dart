@@ -1,15 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:rastro/models/shipping.dart';
+import 'package:rastro/models/shipment.dart';
 import 'package:rastro/routes/app_router.dart';
-import 'package:rastro/utils/enums/statuses.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 
 class RecentShippingsPanel extends StatelessWidget {
-  final List<Shipping> recentShippings;
+  final List<Shipment> recentShipments;
 
-  const RecentShippingsPanel({super.key, required this.recentShippings});
+  const RecentShippingsPanel({super.key, required this.recentShipments});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class RecentShippingsPanel extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ...recentShippings.map((s) => _buildShippingRow(s)),
+            ...recentShipments.map((s) => _buildShipmentRow(s)),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
@@ -52,8 +51,8 @@ class RecentShippingsPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildShippingRow(Shipping s) {
-    final dateStr = DateFormat('dd/MM').format(s.createdAt);
+  Widget _buildShipmentRow(Shipment s) {
+    final dateStr = DateFormat('dd/MM').format(s.entryDate);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -62,10 +61,10 @@ class RecentShippingsPanel extends StatelessWidget {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: s.status.getColor(),
+              color: s.statusColor,
               shape: BoxShape.circle,
               border: Border.all(
-                color: s.status.getTextColor(),
+                color: s.statusTextColor,
                 width: 1.5,
               ),
             ),
@@ -76,7 +75,7 @@ class RecentShippingsPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  s.productName,
+                  s.name,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -96,15 +95,15 @@ class RecentShippingsPanel extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: s.status.getColor(),
+              color: s.statusColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              s.status.getLabel(),
+              s.status,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: s.status.getTextColor(),
+                color: s.statusTextColor,
               ),
             ),
           ),

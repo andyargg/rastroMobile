@@ -22,6 +22,7 @@ dependencies:
   supabase_flutter: ^2.12.0
   font_awesome_flutter: ^10.7.0
   equatable: ^2.0.8
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

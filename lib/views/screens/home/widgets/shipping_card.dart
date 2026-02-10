@@ -2,25 +2,24 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:rastro/blocs/shipping_bloc/events/shipping_event.dart';
-import 'package:rastro/blocs/shipping_bloc/shipping_bloc.dart';
+import 'package:rastro/blocs/shipment_bloc/events/shipment_event.dart';
+import 'package:rastro/blocs/shipment_bloc/shipment_bloc.dart';
 import 'package:rastro/helpers/courier_assets.dart';
-import 'package:rastro/models/shipping.dart';
-import 'package:rastro/utils/enums/statuses.dart';
+import 'package:rastro/models/shipment.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
 import 'package:rastro/utils/styles/app_styles.dart';
 
 class ShippingCard extends StatelessWidget {
-  final Shipping shipping;
+  final Shipment shipment;
 
   const ShippingCard({
     super.key,
-    required this.shipping,
+    required this.shipment,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<ShippingBloc>();
+    final bloc = context.read<ShipmentBloc>();
     return GestureDetector(
       onLongPressStart: (details) => _showContextMenu(context, details.globalPosition, bloc),
       child: Card(
@@ -37,16 +36,16 @@ class ShippingCard extends StatelessWidget {
               Expanded(
                 flex: 15,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.horizontal(left: Radius.circular(16)),
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
                   child: Image.asset(
-                    courierLogos[shipping.courier]!,
+                    courierLogos[shipment.courier] ?? 'assets/images/default.png',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
                       const Icon(Icons.local_shipping, size: 40, color: Colors.black),
                   ),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 flex: 85,
                 child: Row(
@@ -58,7 +57,7 @@ class ShippingCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            shipping.productName,
+                            shipment.name,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -67,14 +66,14 @@ class ShippingCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            shipping.courier,
+                            shipment.courier,
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF666666),
                             ),
                           ),
                           Text(
-                            DateFormat('dd/MM/yyyy').format(shipping.createdAt),
+                            DateFormat('dd/MM/yyyy').format(shipment.entryDate),
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF999999),
@@ -86,22 +85,22 @@ class ShippingCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: shipping.status.getColor(),
-                        borderRadius: BorderRadius.only(
+                        color: shipment.statusColor,
+                        borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(8.0),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: shipping.status.getShadowColor(),
-                            offset: Offset(0, 4),
+                            color: shipment.statusShadowColor,
+                            offset: const Offset(0, 4),
                             blurRadius: 4,
                           ),
                         ],
                       ),
                       child: Text(
-                        shipping.status.getLabel(),
+                        shipment.status,
                         style: TextStyle(
-                          color: shipping.status.getTextColor(),
+                          color: shipment.statusTextColor,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
@@ -117,14 +116,14 @@ class ShippingCard extends StatelessWidget {
     );
   }
 
-  void _showContextMenu(BuildContext context, Offset position, ShippingBloc bloc) {
+  void _showContextMenu(BuildContext context, Offset position, ShipmentBloc bloc) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
       barrierLabel: '',
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (dialogCtx, _,_ ) {
+      pageBuilder: (dialogCtx, _, __) {
         return GestureDetector(
           onTap: () => Navigator.pop(dialogCtx),
           child: BackdropFilter(
@@ -155,10 +154,21 @@ class ShippingCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             _contextAction(
+                              label: 'Rastrear',
+                              icon: Icons.search,
+                              color: Colors.blue,
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                              onTap: () {
+                                Navigator.pop(dialogCtx);
+                                bloc.add(TrackShipment(shipment));
+                              },
+                            ),
+                            Container(height: 0.5, color: Colors.grey.shade200),
+                            _contextAction(
                               label: 'Editar',
                               icon: Icons.edit,
                               color: AppColors.primary,
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                              borderRadius: BorderRadius.zero,
                               onTap: () {
                                 Navigator.pop(dialogCtx);
                                 _showEditSheet(context, bloc);
@@ -212,14 +222,14 @@ class ShippingCard extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirm(BuildContext context, ShippingBloc bloc) {
+  void _showDeleteConfirm(BuildContext context, ShipmentBloc bloc) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
       barrierLabel: '',
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (dialogCtx, _, _) {
+      pageBuilder: (dialogCtx, _, __) {
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: Container(
@@ -235,7 +245,7 @@ class ShippingCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    bloc.add(DeleteShipping(shipping));
+                    bloc.add(DeleteShipment(shipment.id));
                     Navigator.pop(dialogCtx);
                   },
                   child: const Text('Borrar', style: TextStyle(color: Colors.red)),
@@ -248,7 +258,7 @@ class ShippingCard extends StatelessWidget {
     );
   }
 
-  void _showEditSheet(BuildContext context, ShippingBloc bloc) {
+  void _showEditSheet(BuildContext context, ShipmentBloc bloc) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -258,35 +268,37 @@ class ShippingCard extends StatelessWidget {
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: _EditShippingForm(shipping: shipping, bloc: bloc),
+        child: _EditShipmentForm(shipment: shipment, bloc: bloc),
       ),
     );
   }
 }
 
-class _EditShippingForm extends StatefulWidget {
-  final Shipping shipping;
-  final ShippingBloc bloc;
+class _EditShipmentForm extends StatefulWidget {
+  final Shipment shipment;
+  final ShipmentBloc bloc;
 
-  const _EditShippingForm({required this.shipping, required this.bloc});
+  const _EditShipmentForm({required this.shipment, required this.bloc});
 
   @override
-  State<_EditShippingForm> createState() => _EditShippingFormState();
+  State<_EditShipmentForm> createState() => _EditShipmentFormState();
 }
 
-class _EditShippingFormState extends State<_EditShippingForm> {
+class _EditShipmentFormState extends State<_EditShipmentForm> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _descCtrl;
   late String _courier;
-  late ShippingStatus _status;
+  late String _status;
+
+  static const _statuses = ['Pendiente', 'En tránsito', 'Entregado'];
 
   @override
   void initState() {
     super.initState();
-    _nameCtrl = TextEditingController(text: widget.shipping.productName);
-    _descCtrl = TextEditingController(text: widget.shipping.description ?? '');
-    _courier = widget.shipping.courier;
-    _status = widget.shipping.status;
+    _nameCtrl = TextEditingController(text: widget.shipment.name);
+    _descCtrl = TextEditingController(text: widget.shipment.description ?? '');
+    _courier = widget.shipment.courier;
+    _status = widget.shipment.status;
   }
 
   @override
@@ -298,13 +310,13 @@ class _EditShippingFormState extends State<_EditShippingForm> {
 
   void _save() {
     if (_nameCtrl.text.trim().isEmpty) return;
-    final updated = widget.shipping.copyWith(
-      productName: _nameCtrl.text.trim(),
+    final updated = widget.shipment.copyWith(
+      name: _nameCtrl.text.trim(),
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
       courier: _courier,
       status: _status,
     );
-    widget.bloc.add(EditShipping(original: widget.shipping, updated: updated));
+    widget.bloc.add(EditShipment(updated));
     Navigator.pop(context);
   }
 
@@ -400,7 +412,7 @@ class _EditShippingFormState extends State<_EditShippingForm> {
             Wrap(
               spacing: 10,
               runSpacing: 10,
-              children: ShippingStatus.values.map((s) {
+              children: _statuses.map((s) {
                 final selected = _status == s;
                 return GestureDetector(
                   onTap: () => setState(() => _status = s),
@@ -408,19 +420,19 @@ class _EditShippingFormState extends State<_EditShippingForm> {
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: selected ? s.getColor() : AppColors.inputFill,
+                      color: selected ? AppColors.primary.withValues(alpha: 0.15) : AppColors.inputFill,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: selected ? s.getTextColor() : AppColors.divider,
+                        color: selected ? AppColors.primary : AppColors.divider,
                         width: 1.5,
                       ),
                     ),
                     child: Text(
-                      s.getLabel(),
+                      s,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: selected ? s.getTextColor() : AppColors.tertiary,
+                        color: selected ? AppColors.textDark : AppColors.tertiary,
                       ),
                     ),
                   ),
