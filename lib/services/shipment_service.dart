@@ -20,7 +20,6 @@ class ShipmentService {
   Future<Shipment> create({
     required String name,
     required String trackingNumber,
-    String? description,
     required String status,
     required String courier,
   }) async {
@@ -28,7 +27,6 @@ class ShipmentService {
       id: '',
       name: name,
       trackingNumber: trackingNumber,
-      description: description,
       status: status,
       courier: courier,
       entryDate: DateTime.now(),

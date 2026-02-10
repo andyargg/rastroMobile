@@ -4,7 +4,6 @@ class Shipment {
   final String id;
   final String name;
   final String trackingNumber;
-  final String? description;
   final String status;
   final String courier;
   final DateTime entryDate;
@@ -14,7 +13,6 @@ class Shipment {
     required this.id,
     required this.name,
     required this.trackingNumber,
-    this.description,
     required this.status,
     required this.courier,
     required this.entryDate,
@@ -26,7 +24,6 @@ class Shipment {
       id: json['id'] as String,
       name: json['name'] as String,
       trackingNumber: json['tracking_number'] as String,
-      description: json['description'] as String?,
       status: json['status'] as String,
       courier: json['courier'] as String,
       entryDate: DateTime.parse(json['entry_date'] as String),
@@ -40,7 +37,6 @@ class Shipment {
     return {
       'name': name,
       'tracking_number': trackingNumber,
-      'description': description,
       'status': status,
       'courier': courier,
       'entry_date': entryDate.toIso8601String(),
@@ -52,7 +48,6 @@ class Shipment {
     return {
       'name': name,
       'tracking_number': trackingNumber,
-      'description': description,
       'status': status,
       'courier': courier,
       'exit_date': exitDate?.toIso8601String(),
@@ -62,7 +57,6 @@ class Shipment {
   Shipment copyWith({
     String? name,
     String? trackingNumber,
-    String? description,
     String? status,
     String? courier,
     DateTime? exitDate,
@@ -71,7 +65,6 @@ class Shipment {
       id: id,
       name: name ?? this.name,
       trackingNumber: trackingNumber ?? this.trackingNumber,
-      description: description ?? this.description,
       status: status ?? this.status,
       courier: courier ?? this.courier,
       entryDate: entryDate,

@@ -52,7 +52,6 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
         name: event.name,
         trackingNumber: event.trackingNumber,
         courier: event.courier,
-        description: event.description,
         status: event.status,
       );
       _allShipments.insert(0, shipment);

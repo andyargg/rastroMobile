@@ -286,7 +286,6 @@ class _EditShipmentForm extends StatefulWidget {
 
 class _EditShipmentFormState extends State<_EditShipmentForm> {
   late final TextEditingController _nameCtrl;
-  late final TextEditingController _descCtrl;
   late String _courier;
   late String _status;
 
@@ -296,7 +295,6 @@ class _EditShipmentFormState extends State<_EditShipmentForm> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.shipment.name);
-    _descCtrl = TextEditingController(text: widget.shipment.description ?? '');
     _courier = widget.shipment.courier;
     _status = widget.shipment.status;
   }
@@ -304,7 +302,6 @@ class _EditShipmentFormState extends State<_EditShipmentForm> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _descCtrl.dispose();
     super.dispose();
   }
 
@@ -312,7 +309,6 @@ class _EditShipmentFormState extends State<_EditShipmentForm> {
     if (_nameCtrl.text.trim().isEmpty) return;
     final updated = widget.shipment.copyWith(
       name: _nameCtrl.text.trim(),
-      description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
       courier: _courier,
       status: _status,
     );
@@ -347,21 +343,6 @@ class _EditShipmentFormState extends State<_EditShipmentForm> {
             const SizedBox(height: 8),
             TextField(
               controller: _nameCtrl,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.inputFill,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            Text('Descripción', style: AppTextStyles.label),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _descCtrl,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.inputFill,

@@ -13,19 +13,17 @@ class AddShipment extends ShipmentEvent {
   final String name;
   final String trackingNumber;
   final String courier;
-  final String? description;
   final String status;
 
   AddShipment({
     required this.name,
     required this.trackingNumber,
     required this.courier,
-    this.description,
     this.status = 'Pendiente',
   });
 
   @override
-  List<Object?> get props => [name, trackingNumber, courier, description, status];
+  List<Object?> get props => [name, trackingNumber, courier, status];
 }
 
 class SearchShipments extends ShipmentEvent {

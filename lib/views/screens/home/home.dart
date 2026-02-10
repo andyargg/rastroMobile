@@ -240,6 +240,7 @@ class _HomeView extends StatelessWidget {
   }
 
   void _showAddShippingModal(BuildContext context) {
+    final bloc = context.read<ShipmentBloc>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -247,11 +248,14 @@ class _HomeView extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+      builder: (ctx) => BlocProvider.value(
+        value: bloc,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: const ModalShipping(),
         ),
-        child: const ModalShipping(),
       ),
     );
   }
