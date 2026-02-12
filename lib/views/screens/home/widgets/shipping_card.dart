@@ -52,34 +52,52 @@ class ShippingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            shipment.name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF000000),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              shipment.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF000000),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            shipment.courier,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF666666),
+                            Text(
+                              shipment.courier,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF666666),
+                              ),
                             ),
-                          ),
-                          Text(
-                            DateFormat('dd/MM/yyyy').format(shipment.entryDate),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF999999),
+                            Row(
+                              children: [
+                                Text(
+                                  'Envío: ${DateFormat('dd/MM/yy').format(shipment.entryDate)}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF999999),
+                                  ),
+                                ),
+                                if (shipment.exitDate != null) ...[
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Llegada: ${DateFormat('dd/MM/yy').format(shipment.exitDate!)}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Color(0xFF4CAF50),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
-                          )
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     Container(

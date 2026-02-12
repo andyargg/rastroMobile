@@ -82,7 +82,6 @@ class _LoginPageState extends State<LoginPage> {
       ));
     } catch (e) {
       if (!mounted) return;
-      debugPrint(e.toString());
       CustomSnackbar.showError(context, 'Error al enviar código: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);

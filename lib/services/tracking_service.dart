@@ -61,21 +61,44 @@ class TrackingResult {
 
 class TrackingService {
   static const String _baseUrl = 'https://rastro-back.onrender.com';
+  static const Duration _timeout = Duration(seconds: 60);
 
   Future<TrackingResult> track({
     required String trackingNumber,
     required String courier,
   }) async {
-    final uri = Uri.parse('$_baseUrl/api/track').replace(
-      queryParameters: {
-        'id': trackingNumber,
-        'courier': courier,
-      },
-    );
+    try {
+      final uri = Uri.parse('$_baseUrl/api/track').replace(
+        queryParameters: {
+          'id': trackingNumber,
+          'courier': courier,
+        },
+      );
 
-    final response = await http.get(uri);
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final response = await http.get(uri).timeout(_timeout);
 
-    return TrackingResult.fromJson(json);
+      if (response.statusCode != 200 && response.statusCode != 404) {
+        return TrackingResult(
+          success: false,
+          courier: courier,
+          trackingNumber: trackingNumber,
+          status: 'error',
+          events: [],
+          error: 'Server error: ${response.statusCode}',
+        );
+      }
+
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return TrackingResult.fromJson(json);
+    } catch (e) {
+      return TrackingResult(
+        success: false,
+        courier: courier,
+        trackingNumber: trackingNumber,
+        status: 'error',
+        events: [],
+        error: 'Connection error: ${e.toString()}',
+      );
+    }
   }
 }

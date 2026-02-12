@@ -22,6 +22,8 @@ class ShipmentService {
     required String trackingNumber,
     required String status,
     required String courier,
+    required DateTime entryDate,
+    DateTime? exitDate,
   }) async {
     final shipment = Shipment(
       id: '',
@@ -29,7 +31,8 @@ class ShipmentService {
       trackingNumber: trackingNumber,
       status: status,
       courier: courier,
-      entryDate: DateTime.now(),
+      entryDate: entryDate,
+      exitDate: exitDate,
     );
 
     final response = await _supabase

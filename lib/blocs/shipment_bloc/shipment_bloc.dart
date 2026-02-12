@@ -48,17 +48,72 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
     Emitter<ShipmentState> emit,
   ) async {
     try {
+      // track shipment first to get real status and dates
+      String status = event.status;
+      DateTime entryDate = DateTime.now();
+      DateTime? exitDate;
+
+      try {
+        final trackingResult = await _trackingService.track(
+          trackingNumber: event.trackingNumber,
+          courier: _courierToSlug(event.courier),
+        );
+
+        if (trackingResult.success && trackingResult.events.isNotEmpty) {
+          status = trackingResult.status;
+
+          // entry_date = oldest event (last in list)
+          final oldestEvent = trackingResult.events.last;
+          entryDate = _parseDate(oldestEvent.date) ?? DateTime.now();
+
+          // exit_date = newest event date if status is "Entregado"
+          if (status.toLowerCase() == 'entregado') {
+            final newestEvent = trackingResult.events.first;
+            exitDate = _parseDate(newestEvent.date);
+          }
+        }
+      } catch (_) {
+        // tracking failed, use defaults
+      }
+
       final shipment = await _service.create(
         name: event.name,
         trackingNumber: event.trackingNumber,
         courier: event.courier,
-        status: event.status,
+        status: status,
+        entryDate: entryDate,
+        exitDate: exitDate,
       );
       _allShipments.insert(0, shipment);
       emit(ShipmentLoaded(_applyAllFilters(), filter: _currentFilter));
     } catch (e) {
       emit(ShipmentError(e.toString()));
     }
+  }
+
+  // convert courier display name to API slug
+  String _courierToSlug(String courier) {
+    const map = {
+      'Correo Argentino': 'correo-argentino',
+      'Andreani': 'andreani',
+      'OCA': 'oca',
+    };
+    return map[courier] ?? courier.toLowerCase().replaceAll(' ', '-');
+  }
+
+  // parse date from "dd-MM-yyyy" format
+  DateTime? _parseDate(String dateStr) {
+    try {
+      final parts = dateStr.split('-');
+      if (parts.length == 3) {
+        return DateTime(
+          int.parse(parts[2]), // year
+          int.parse(parts[1]), // month
+          int.parse(parts[0]), // day
+        );
+      }
+    } catch (_) {}
+    return null;
   }
 
   void _onSearch(
@@ -160,7 +215,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
     try {
       final result = await _trackingService.track(
         trackingNumber: event.shipment.trackingNumber,
-        courier: event.shipment.courier.toLowerCase(),
+        courier: _courierToSlug(event.shipment.courier),
       );
 
       if (result.success && result.status.isNotEmpty) {
