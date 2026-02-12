@@ -8,6 +8,7 @@ import 'package:rastro/utils/styles/app_styles.dart';
 import 'package:rastro/views/screens/auth/widgets/logo_widget.dart';
 import 'package:rastro/views/widgets/custom_snack_bar.dart';
 import 'package:rastro/views/widgets/google_button.dart';
+import 'package:rastro/views/widgets/responsive_center.dart';
 
 @RoutePage()
 class LoginPage extends StatefulWidget {
@@ -113,9 +114,10 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
+        child: ResponsiveCenter(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
@@ -215,6 +217,7 @@ class _LoginPageState extends State<LoginPage> {
 
             ],
           ),
+        ),
         ),
       ),
     );
