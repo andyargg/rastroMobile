@@ -72,7 +72,18 @@ class _HomeView extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: BlocBuilder<ShipmentBloc, ShipmentState>(
+              child: BlocConsumer<ShipmentBloc, ShipmentState>(
+                listenWhen: (prev, curr) => curr is ShipmentTracking || curr is ShipmentTrackingResult,
+                listener: (context, state) {
+                  if (state is ShipmentTrackingResult) {
+                    final msg = state.result.success
+                        ? 'Estado actualizado: ${state.result.status}'
+                        : 'Error: ${state.result.error ?? "No se pudo rastrear"}';
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+                    context.read<ShipmentBloc>().add(LoadShipments());
+                  }
+                },
+                buildWhen: (prev, curr) => curr is ShipmentLoading || curr is ShipmentLoaded || curr is ShipmentError,
                 builder: (context, state) {
                   if (state is ShipmentLoading) {
                     return const Center(child: CircularProgressIndicator());
@@ -99,7 +110,18 @@ class _HomeView extends StatelessWidget {
   }
 
   Widget _buildWebLayout(BuildContext context, StackRouter router) {
-    return BlocBuilder<ShipmentBloc, ShipmentState>(
+    return BlocConsumer<ShipmentBloc, ShipmentState>(
+      listenWhen: (prev, curr) => curr is ShipmentTracking || curr is ShipmentTrackingResult,
+      listener: (context, state) {
+        if (state is ShipmentTrackingResult) {
+          final msg = state.result.success
+              ? 'Estado actualizado: ${state.result.status}'
+              : 'Error: ${state.result.error ?? "No se pudo rastrear"}';
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+          context.read<ShipmentBloc>().add(LoadShipments());
+        }
+      },
+      buildWhen: (prev, curr) => curr is ShipmentLoading || curr is ShipmentLoaded || curr is ShipmentError,
       builder: (context, state) {
         if (state is ShipmentLoading) {
           return const Center(child: CircularProgressIndicator());
