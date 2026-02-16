@@ -15,11 +15,12 @@ class ShipmentLoading extends ShipmentState {}
 class ShipmentLoaded extends ShipmentState {
   final List<Shipment> shipments;
   final ShipmentFilter filter;
+  final bool isAdding;
 
-  ShipmentLoaded(this.shipments, {this.filter = const ShipmentFilter()});
+  ShipmentLoaded(this.shipments, {this.filter = const ShipmentFilter(), this.isAdding = false});
 
   @override
-  List<Object?> get props => [shipments, filter];
+  List<Object?> get props => [shipments, filter, isAdding];
 }
 
 class ShipmentError extends ShipmentState {

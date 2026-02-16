@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TrackingEvent {
   final String date;
@@ -60,37 +59,49 @@ class TrackingResult {
 }
 
 class TrackingService {
-  static const String _baseUrl = 'https://rastro-back.onrender.com';
-  static const Duration _timeout = Duration(seconds: 60);
-
   Future<TrackingResult> track({
     required String trackingNumber,
     required String courier,
   }) async {
     try {
-      final uri = Uri.parse('$_baseUrl/api/track').replace(
-        queryParameters: {
-          'id': trackingNumber,
+      final session = Supabase.instance.client.auth.currentSession;
+      print('=== AUTH DEBUG ===');
+      print('Session: ${session != null ? "EXISTS" : "NULL"}');
+      print('Token: ${session?.accessToken.substring(0, 20)}...');
+      print('==================');
+
+      final response = await Supabase.instance.client.functions.invoke(
+        'track',
+        body: {
+          'tracking_number': trackingNumber,
           'courier': courier,
         },
       );
 
-      final response = await http.get(uri).timeout(_timeout);
+      print('=== TRACKING DEBUG ===');
+      print('Status: ${response.status}');
+      print('Data type: ${response.data.runtimeType}');
+      print('Data: ${response.data}');
+      print('=====================');
 
-      if (response.statusCode != 200 && response.statusCode != 404) {
-        return TrackingResult(
-          success: false,
-          courier: courier,
-          trackingNumber: trackingNumber,
-          status: 'error',
-          events: [],
-          error: 'Server error: ${response.statusCode}',
-        );
-      }
 
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final json = response.data as Map<String, dynamic>;
       return TrackingResult.fromJson(json);
+    } on FunctionException catch (e) {
+      print('=== TRACKING FunctionException ===');
+      print('Status: ${e.status}, Details: ${e.details}, Reason: ${e.reasonPhrase}');
+      return TrackingResult(
+        success: false,
+        courier: courier,
+        trackingNumber: trackingNumber,
+        status: 'error',
+        events: [],
+        error: 'Server error: ${e.reasonPhrase}',
+      );
     } catch (e) {
+      print('=== TRACKING CATCH ===');
+      print('Error: $e');
+      print('=====================');
       return TrackingResult(
         success: false,
         courier: courier,

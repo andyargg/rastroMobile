@@ -47,6 +47,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
     AddShipment event,
     Emitter<ShipmentState> emit,
   ) async {
+    emit(ShipmentLoaded(_applyAllFilters(), filter: _currentFilter, isAdding: true));
     try {
       // track shipment first to get real status and dates
       String status = event.status;

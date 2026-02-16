@@ -15,6 +15,8 @@ import 'package:rastro/views/screens/home/widgets/modal_filter.dart';
 import 'package:rastro/views/screens/home/widgets/modal_shipping.dart';
 import 'package:rastro/views/screens/home/widgets/search_bar_card.dart';
 import 'package:rastro/views/screens/home/widgets/shipping_card_builder.dart';
+import 'package:rastro/views/screens/home/widgets/shipping_card_skeleton.dart';
+import 'package:rastro/views/widgets/shimmer_box.dart';
 
 @RoutePage()
 class HomePage extends StatelessWidget {
@@ -86,10 +88,13 @@ class _HomeView extends StatelessWidget {
                 buildWhen: (prev, curr) => curr is ShipmentLoading || curr is ShipmentLoaded || curr is ShipmentError,
                 builder: (context, state) {
                   if (state is ShipmentLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return ShippingCardSkeleton.list();
                   }
                   if (state is ShipmentLoaded) {
-                    return ShippingCardBuilder(shipments: state.shipments);
+                    return ShippingCardBuilder(
+                      shipments: state.shipments,
+                      isAdding: state.isAdding,
+                    );
                   }
                   if (state is ShipmentError) {
                     return Center(child: Text(state.message));
@@ -124,7 +129,19 @@ class _HomeView extends StatelessWidget {
       buildWhen: (prev, curr) => curr is ShipmentLoading || curr is ShipmentLoaded || curr is ShipmentError,
       builder: (context, state) {
         if (state is ShipmentLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 4,
+                child: _buildDashboardSkeleton(),
+              ),
+              Expanded(
+                flex: 3,
+                child: ShippingCardSkeleton.list(),
+              ),
+            ],
+          );
         }
         if (state is ShipmentError) {
           return Center(child: Text(state.message));
@@ -140,13 +157,44 @@ class _HomeView extends StatelessWidget {
               ),
               Expanded(
                 flex: 3,
-                child: _buildShippingListPanel(context, shipments, router),
+                child: _buildShippingListPanel(context, shipments, router, isAdding: state.isAdding),
               ),
             ],
           );
         }
         return const SizedBox.shrink();
       },
+    );
+  }
+
+  Widget _buildDashboardSkeleton() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(40, 24, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const ShimmerBox(width: 140, height: 28),
+          const SizedBox(height: 20),
+          // Status summary row skeleton (4 cards)
+          Row(
+            children: List.generate(
+              4,
+              (_) => const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6),
+                  child: ShimmerBox(width: double.infinity, height: 80, borderRadius: 12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Courier breakdown skeleton
+          const ShimmerBox(width: double.infinity, height: 200, borderRadius: 12),
+          const SizedBox(height: 16),
+          // Recent shippings skeleton
+          const ShimmerBox(width: double.infinity, height: 180, borderRadius: 12),
+        ],
+      ),
     );
   }
 
@@ -195,8 +243,9 @@ class _HomeView extends StatelessWidget {
   Widget _buildShippingListPanel(
     BuildContext context,
     List<Shipment> shipments,
-    StackRouter router,
-  ) {
+    StackRouter router, {
+    bool isAdding = false,
+  }) {
     return Column(
       children: [
         Padding(
@@ -214,7 +263,7 @@ class _HomeView extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: ShippingCardBuilder(shipments: shipments),
+          child: ShippingCardBuilder(shipments: shipments, isAdding: isAdding),
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
