@@ -18,16 +18,14 @@ import 'package:rastro/views/screens/home/widgets/shipping_card_builder.dart';
 import 'package:rastro/views/screens/home/widgets/shipping_card_skeleton.dart';
 import 'package:rastro/views/widgets/shimmer_box.dart';
 
+
 @RoutePage()
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ShipmentBloc()..add(LoadShipments()),
-      child: const _HomeView(),
-    );
+    return const _HomeView();
   }
 }
 

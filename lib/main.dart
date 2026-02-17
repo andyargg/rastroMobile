@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rastro/blocs/shipment_bloc/events/shipment_event.dart';
+import 'package:rastro/blocs/shipment_bloc/shipment_bloc.dart';
 import 'package:rastro/routes/app_router.dart';
 import 'package:rastro/services/auth_service.dart';
 import 'package:rastro/services/google_auth/google_auth_provider.dart';
@@ -43,15 +46,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Rastro',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        fontFamily: 'Roboto',
+    return BlocProvider(
+      create: (_) => ShipmentBloc()..add(LoadShipments()),
+      child: MaterialApp.router(
+        title: 'Rastro',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+          fontFamily: 'Roboto',
+        ),
+        routerConfig: _appRouter.config(),
       ),
-      routerConfig: _appRouter.config(),
     );
   }
 }

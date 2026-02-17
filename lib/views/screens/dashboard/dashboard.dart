@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rastro/blocs/shipment_bloc/events/shipment_event.dart';
 import 'package:rastro/blocs/shipment_bloc/shipment_bloc.dart';
 import 'package:rastro/blocs/shipment_bloc/states/shipment_state.dart';
 import 'package:rastro/utils/styles/app_colors.dart';
@@ -15,10 +14,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ShipmentBloc()..add(LoadShipments()),
-      child: const _DashboardView(),
-    );
+    return const _DashboardView();
   }
 }
 
