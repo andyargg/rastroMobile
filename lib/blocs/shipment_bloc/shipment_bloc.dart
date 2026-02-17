@@ -220,7 +220,10 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentState> {
       );
 
       if (result.success && result.status.isNotEmpty) {
-        final updated = event.shipment.copyWith(status: result.status);
+        final updated = event.shipment.copyWith(
+          status: result.status,
+          exitDate: event.shipment.exitDate,
+        );
         await _service.update(updated);
 
         final index = _allShipments.indexWhere((s) => s.id == updated.id);
